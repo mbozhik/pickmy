@@ -17,7 +17,7 @@ export default function Hero() {
           </P>
         </div>
 
-        <Button variant="outline" text="Лучшие подборки" />
+        <Button to="/#experts" variant="outline" text="Лучшие подборки" />
       </div>
 
       <div className={cn('absolute inset-0 -z-20 s-full overflow-hidden', 'bg-foreground')}>

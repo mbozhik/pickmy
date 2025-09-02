@@ -15,6 +15,9 @@ export default {
       background: colors.white,
       foreground: colors.black,
 
+      gray: {
+        DEFAULT: '#F8F8F8',
+      },
       neutral: colors.neutral,
 
       transparent: colors.transparent,
