@@ -1,5 +1,7 @@
 'use client'
 
+import {BOX} from '~/Global/Container'
+
 import {cn} from '@/lib/utils'
 
 import {useState} from 'react'
@@ -7,8 +9,6 @@ import {useScroll, useMotionValueEvent} from 'motion/react'
 
 import Link from 'next/link'
 import {H3, P} from '~/UI/Typography'
-
-const HEADER_BOX = 'w-[68%] xl:w-[83%] sm:w-auto mx-auto sm:mx-3'
 
 const HEADER_LINKS = {
   catalog: 'Каталог',
@@ -40,7 +40,7 @@ export default function Header() {
 
   return (
     <header className={cn('fixed inset-0 z-[99]', 'w-full h-fit pt-5 xl:pt-4 sm:pt-3')}>
-      <div className={cn(HEADER_BOX, 'px-3 py-1.5', 'flex items-center justify-between', 'rounded-lg duration-300', isScrolled ? 'bg-background/70 backdrop-blur-[4px] text-foreground' : 'bg-transparent text-background')}>
+      <div className={cn(BOX.header, 'px-3 py-1.5', 'flex items-center justify-between', 'rounded-lg duration-300', isScrolled ? 'bg-background/70 backdrop-blur-[4px] text-foreground' : 'bg-transparent text-background')}>
         <Link href="/">
           <H3 offset={0} className="-mt-1">
             cargo
