@@ -2,6 +2,8 @@ export {metadata} from '@/lib/layout-config'
 import {inter, playfair} from '@/lib/layout-config'
 import '@/app/globals.css'
 
+import {cn} from '@/lib/utils'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -9,7 +11,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
-      <body className={`${inter.variable} ${playfair.variable} antialiased`}>{children}</body>
+      <body className={cn([inter.variable, playfair.variable], 'bg-background text-foreground', 'font-sans antialiased')}>{children}</body>
     </html>
   )
 }
