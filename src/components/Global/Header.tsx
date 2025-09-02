@@ -1,5 +1,6 @@
 'use client'
 
+import {PATHS} from '@/lib/constants'
 import {BOX} from '~/Global/Container'
 
 import {cn} from '@/lib/utils'
@@ -9,13 +10,6 @@ import {useScroll, useMotionValueEvent} from 'motion/react'
 
 import Link from 'next/link'
 import {H3, P} from '~/UI/Typography'
-
-const HEADER_LINKS = {
-  catalog: 'Каталог',
-  experts: 'Эксперты',
-  about: 'О нас',
-  contact: 'Контакты',
-}
 
 export default function Header() {
   const {scrollY} = useScroll()
@@ -48,10 +42,10 @@ export default function Header() {
         </Link>
 
         <div className="flex gap-8 xl:gap-6 pr-2 sm:pr-0 sm:hidden">
-          {Object.entries(HEADER_LINKS).map(([key, value]) => (
-            <Link href={`/${key}`} className="group" key={key}>
+          {Object.entries(PATHS.global).map(([key, path]) => (
+            <Link href={path.link} className="group" key={key}>
               <P offset={0} className="border-b border-transparent group-hover:border-b-background duration-300">
-                {value}
+                {path.label}
               </P>
             </Link>
           ))}
