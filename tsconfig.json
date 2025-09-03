@@ -22,7 +22,8 @@
       "@/*": ["./src/*"],
       "~/*": ["./src/components/*"],
       "~~/*": ["./src/components/App/*"],
-      "$/*": ["./src/images/*"]
+      "$/*": ["./src/images/*"],
+      "@convex/*": ["./convex/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
