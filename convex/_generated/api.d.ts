@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as tables_experts from "../tables/experts.js";
 import type * as tables_products from "../tables/products.js";
 
 /**
@@ -24,6 +25,7 @@ import type * as tables_products from "../tables/products.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "tables/experts": typeof tables_experts;
   "tables/products": typeof tables_products;
 }>;
 export declare const api: FilterApi<

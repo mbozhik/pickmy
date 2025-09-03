@@ -9,4 +9,12 @@ export default defineSchema({
     featured: v.boolean(),
     slug: v.string(),
   }),
+
+  experts: defineTable({
+    name: v.string(),
+    role: v.string(),
+    username: v.string(),
+    link: v.string(),
+    featured: v.boolean(),
+  }),
 })

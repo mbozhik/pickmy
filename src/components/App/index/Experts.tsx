@@ -2,6 +2,9 @@ import StarImage from '$/index/star.svg'
 
 import {PATHS} from '@/lib/constants'
 
+import {preloadQuery, preloadedQueryResult} from 'convex/nextjs'
+import {api} from '@convex/_generated/api'
+
 import {cn} from '@/lib/utils'
 
 import Link from 'next/link'
@@ -9,42 +12,12 @@ import Image from 'next/image'
 import {H1, H3, H5, P, SPAN} from '~/UI/Typography'
 import Button from '~/UI/Button'
 
-const MOCK_EXPERTS = {
-  sofia: {
-    name: 'София Дроздова',
-    role: 'кардиолог-диетолог',
-  },
-  max: {
-    name: 'Максим Суббота',
-    role: 'врач-нутрициолог',
-  },
-  vera: {
-    name: 'Вера Серова',
-    role: 'wellness-коуч',
-  },
-  anna: {
-    name: 'Анна Ковалева',
-    role: 'клинический психолог',
-  },
-  dmitry: {
-    name: 'Дмитрий Волков',
-    role: 'эндокринолог',
-  },
-  elena: {
-    name: 'Елена Михайлова',
-    role: 'фитнес-нутрициолог',
-  },
-  alex: {
-    name: 'Александр Петров',
-    role: 'спортивный врач',
-  },
-  maria: {
-    name: 'Мария Белова',
-    role: 'health-блогер',
-  },
-}
+export default async function Experts() {
+  const preloadedFeaturedExperts = await preloadQuery(api.tables.experts.getFeaturedExperts)
+  const featuredExperts = preloadedQueryResult(preloadedFeaturedExperts)
 
-export default function Experts() {
+  const experts = featuredExperts
+
   return (
     <section data-section="experts-index" id="experts" className="space-y-10 sm:space-y-6">
       <div className="flex sm:flex-col items-center sm:items-start justify-between sm:gap-3">
@@ -61,10 +34,10 @@ export default function Experts() {
       </div>
 
       <div className="grid grid-cols-4 xl:grid-cols-3 sm:grid-cols-1 gap-2">
-        {Object.entries(MOCK_EXPERTS).map(([key, {name, role}]) => (
-          <Link href={`${PATHS.internal.expert.link}/${key}`} className={cn('p-5 xl:p-4', 'flex flex-col items-center gap-2', 'bg-gray', 'group')} key={key}>
+        {experts?.map(({_id, name, role, username}) => (
+          <Link href={`${PATHS.internal.expert.link}/${username}`} className={cn('p-5 xl:p-4', 'flex flex-col items-center gap-2', 'bg-gray', 'group')} key={_id}>
             <div className="py-10 xl:py-8 sm:py-6">
-              <Image className={cn('size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt="Звезда эксперта cargo" />
+              <Image className={cn('size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`Cargo | ${name} – ${role}`} />
             </div>
 
             <div className="text-center">
