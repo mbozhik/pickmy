@@ -1,4 +1,4 @@
-import StarImage from '$/star.svg'
+import StarImage from '$/index/star.svg'
 
 import {PATHS} from '@/lib/constants'
 

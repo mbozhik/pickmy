@@ -21,7 +21,14 @@ export default function Hero() {
       </div>
 
       <div className={cn('absolute inset-0 -z-20 s-full overflow-hidden', 'bg-foreground')}>
-        <video className="w-full sm:w-auto sm:h-screen !max-w-none opacity-60 sm:opacity-50" autoPlay muted loop playsInline>
+        <video
+          className="w-full sm:w-auto sm:h-screen !max-w-none opacity-60 sm:opacity-50"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/hero.jpg" // thumbnail
+        >
           <source src="/hero.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
