@@ -4,9 +4,17 @@ import {v} from 'convex/values'
 export default defineSchema({
   products: defineTable({
     name: v.string(),
-    category: v.string(),
+    category: v.id('categories'),
     caption: v.string(),
     featured: v.boolean(),
+    slug: v.string(),
+  })
+    .index('by_category', ['category'])
+    .index('by_featured', ['featured']),
+
+  categories: defineTable({
+    name: v.string(),
+    description: v.string(),
     slug: v.string(),
   }),
 
