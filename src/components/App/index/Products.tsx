@@ -1,22 +1,15 @@
-import StarImage from '$/index/star.svg'
-
 import {PATHS} from '@/lib/constants'
 
 import {preloadQuery, preloadedQueryResult} from 'convex/nextjs'
 import {api} from '@convex/_generated/api'
 
-import {cn} from '@/lib/utils'
-
-import Link from 'next/link'
-import Image from 'next/image'
-import {H1, H3, H5, P, SPAN} from '~/UI/Typography'
+import Grid, {ProductCard} from '~/UI/Grid'
+import {H1, H5, P} from '~/UI/Typography'
 import Button from '~/UI/Button'
 
 export default async function Products() {
   const preloadedFeaturedProducts = await preloadQuery(api.tables.products.getFeaturedProducts)
   const featuredProducts = preloadedQueryResult(preloadedFeaturedProducts)
-
-  const products = featuredProducts
 
   return (
     <section data-section="products-index" id="products" className="space-y-10 sm:space-y-6">
@@ -33,30 +26,10 @@ export default async function Products() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 xl:grid-cols-3 sm:grid-cols-1 gap-2">
-        {products === undefined ? (
-          <div className="col-span-full text-center py-14 sm:py-10 bg-gray">
-            <SPAN>Загрузка данных..</SPAN>
-          </div>
-        ) : products.length === 0 ? (
-          <div className="col-span-full text-center py-14 sm:py-10 bg-gray">
-            <SPAN>Нет доступных данных</SPAN>
-          </div>
-        ) : (
-          products.map(({_id, name, category, caption, slug}) => (
-            <Link href={`${PATHS.internal.product.link}/${slug}`} className={cn('p-5 xl:p-4', 'flex flex-col items-center gap-2', 'bg-gray', 'group')} key={_id}>
-              <div className="py-10 xl:py-8 sm:py-6">
-                <Image className={cn('rotate-45', 'size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`Cargo | ${name} – ${caption}`} />
-              </div>
-
-              <div className="text-center">
-                <H3>{name}</H3>
-                <SPAN className="font-light">{category}</SPAN>
-              </div>
-            </Link>
-          ))
-        )}
-      </div>
+      <Grid
+        data={featuredProducts} // только featured = true
+        renderItem={(product) => <ProductCard product={product} />}
+      />
     </section>
   )
 }
