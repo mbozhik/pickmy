@@ -54,7 +54,7 @@ export default function Experts() {
           <H1 className="leading-[1]">Эксперты</H1>
         </div>
 
-        <div className="flex flex-col items-end sm:items-start gap-3 sm:gap-2 sm:w-full">
+        <div className="flex flex-col items-end sm:items-start gap-3 sm:w-full">
           <P className="font-light max-w-[30ch] sm:max-w-none text-right sm:text-left">Эксклюзивный доступ к отобранным продуктам ваших любимых экспертов.</P>
           <Button to={PATHS.global.experts.link} variant="solid" className="sm:w-full" text="Все эксперты" />
         </div>

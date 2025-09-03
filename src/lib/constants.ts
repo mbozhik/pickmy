@@ -1,8 +1,8 @@
 export const PATHS = {
   global: {
-    catalog: {
-      label: 'Каталог',
-      link: '/catalog',
+    products: {
+      label: 'Продукты',
+      link: '/products',
     },
     experts: {
       label: 'Эксперты',
@@ -21,6 +21,10 @@ export const PATHS = {
     expert: {
       label: 'Эксперт',
       link: '/expert',
+    },
+    product: {
+      label: 'Продукт',
+      link: '/product',
     },
   },
   additional: {

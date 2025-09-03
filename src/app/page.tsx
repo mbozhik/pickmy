@@ -1,6 +1,7 @@
 import Container from '~/Global/Container'
 import Hero from '~~/index/Hero'
 import Experts from '~~/index/Experts'
+import Products from '~~/index/Products'
 
 export default function IndexPage() {
   return (
@@ -9,6 +10,7 @@ export default function IndexPage() {
 
       <Container>
         <Experts />
+        <Products />
       </Container>
     </>
   )

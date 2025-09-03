@@ -8,7 +8,7 @@ export default function Hero() {
     <section data-section="hero-index" className={cn('relative h-screen', 'grid place-items-center')}>
       <div className="space-y-8 xl:space-y-7 sm:space-y-6 text-center">
         <div className="space-y-6 xl:space-y-5 text-background">
-          <H1 by="word">
+          <H1 by="word" className="!leading-[0.95]">
             Советы специалистов, <br className="sm:hidden" /> которым можно доверять
           </H1>
 

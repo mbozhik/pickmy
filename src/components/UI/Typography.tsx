@@ -24,10 +24,10 @@ type MotionElementType = {
 export type TypoTypes = keyof typeof TYPO_CLASSES
 
 export const TYPO_CLASSES = {
-  h1: cn('text-7xl xl:text-6xl sm:text-4xl', 'leading-[0.95]', 'tracking-tighter', 'font-normal sm:font-medium', 'font-sans'),
+  h1: cn('text-7xl xl:text-6xl sm:text-4xl', '!leading-[1.1]', 'tracking-tighter', 'font-normal sm:font-medium', 'font-sans'),
   h3: cn('text-3xl sm:text-2xl', 'tracking-tighter', 'font-medium', 'font-sans'),
   h5: cn('text-xl sm:text-lg', 'tracking-tighter', 'font-normal', 'font-sans'),
-  p: cn('text-base sm:text-sm', 'leading-[1.35]', 'tracking-tight', 'font-sans'),
+  p: cn('text-base sm:text-sm', '!leading-[1.35]', 'tracking-tight', 'font-sans'),
   span: cn('text-sm sm:text-xs', 'tracking-tight', 'font-sans'),
 } as const
 
