@@ -9,12 +9,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import {H3, SPAN} from '~/UI/Typography'
 
-type GridProps<T> = {
-  data: T[] | undefined
-  renderItem: (item: T) => React.ReactNode
-}
-
-type ProductWithExtraData = Omit<Table<'products'>, 'category' | 'expert'> & {
+export type ProductWithExtraData = Omit<Table<'products'>, 'category' | 'expert'> & {
   categoryData: {
     _id: string
     name: string
@@ -26,6 +21,11 @@ type ProductWithExtraData = Omit<Table<'products'>, 'category' | 'expert'> & {
     role: string
     username: string
   }
+}
+
+type GridProps<T> = {
+  data: T[] | undefined
+  renderItem: (item: T) => React.ReactNode
 }
 
 export function ProductCard({product}: {product: ProductWithExtraData}) {
