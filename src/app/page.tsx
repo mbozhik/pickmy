@@ -8,7 +8,7 @@ export default function IndexPage() {
     <>
       <Hero />
 
-      <Container>
+      <Container offset="small">
         <Experts />
         <Products />
       </Container>
