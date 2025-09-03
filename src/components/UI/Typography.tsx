@@ -25,13 +25,15 @@ export type TypoTypes = keyof typeof TYPO_CLASSES
 
 export const TYPO_CLASSES = {
   h1: cn('text-7xl xl:text-6xl sm:text-4xl', '!leading-[1.1]', 'tracking-tighter', 'font-normal sm:font-medium', 'font-sans'),
+  h2: cn('text-6xl xl:text-5xl sm:text-4xl', '!leading-[1.1]', 'tracking-tighter', 'font-normal sm:font-medium', 'font-sans'),
   h3: cn('text-3xl sm:text-2xl', 'tracking-tighter', 'font-medium', 'font-sans'),
   h5: cn('text-xl sm:text-lg', 'tracking-tighter', 'font-normal', 'font-sans'),
-  p: cn('text-base sm:text-sm', '!leading-[1.35]', 'tracking-tight', 'font-sans'),
+  p: cn('text-base xl:text-base sm:text-sm', '!leading-[1.35]', 'tracking-tight', 'font-sans'),
   span: cn('text-sm sm:text-xs', 'tracking-tight', 'font-sans'),
 } as const
 
 export const H1 = createTypography('h1')
+export const H2 = createTypography('h2')
 export const H3 = createTypography('h3')
 export const H5 = createTypography('h5')
 export const P = createTypography('p')
