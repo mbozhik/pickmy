@@ -23,4 +23,18 @@ export const PATHS = {
       link: '/expert',
     },
   },
+  additional: {
+    documentation: {
+      label: 'Документация',
+      link: '/documentation',
+    },
+    terms: {
+      label: 'Пользовательское соглашение',
+      link: '/terms',
+    },
+    support: {
+      label: 'Поддержка',
+      link: '/support',
+    },
+  },
 } as const
