@@ -14,15 +14,21 @@ type GridProps<T> = {
   renderItem: (item: T) => React.ReactNode
 }
 
-type ProductWithCategoryData = Omit<Table<'products'>, 'category'> & {
+type ProductWithExtraData = Omit<Table<'products'>, 'category' | 'expert'> & {
   categoryData: {
     _id: string
     name: string
     slug: string
   }
+  expertData: {
+    _id: string
+    name: string
+    role: string
+    username: string
+  }
 }
 
-export function ProductCard({product}: {product: ProductWithCategoryData}) {
+export function ProductCard({product}: {product: ProductWithExtraData}) {
   return (
     <Link href={`${PATHS.internal.product.link}/${product.slug}`} className={cn('p-5 xl:p-4', 'flex flex-col items-center gap-2', 'bg-gray', 'group')}>
       <div className="py-10 xl:py-8 sm:py-6">

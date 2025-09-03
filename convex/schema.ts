@@ -5,12 +5,14 @@ export default defineSchema({
   products: defineTable({
     name: v.string(),
     category: v.id('categories'),
+    expert: v.id('experts'),
     caption: v.string(),
     featured: v.boolean(),
     slug: v.string(),
   })
     .index('by_category', ['category'])
-    .index('by_featured', ['featured']),
+    .index('by_featured', ['featured'])
+    .index('by_expert', ['expert']),
 
   categories: defineTable({
     name: v.string(),
