@@ -100,7 +100,7 @@ export const getProducts = query({
   },
 })
 
-export const getFeaturedProducts = query({
+export const getProductsFeatured = query({
   args: {},
   returns: v.array(productWithExtraData),
   handler: async (ctx) => {
@@ -136,5 +136,23 @@ export const getProductsByExpert = query({
       .collect()
 
     return enrichProductsWithExtraData(ctx, products)
+  },
+})
+
+export const getProductBySlug = query({
+  args: {slug: v.string()},
+  returns: v.union(productWithExtraData, v.null()),
+  handler: async (ctx, args) => {
+    const product = await ctx.db
+      .query('products')
+      .withIndex('by_slug', (q) => q.eq('slug', args.slug))
+      .unique()
+
+    if (!product) {
+      return null
+    }
+
+    const enrichedProducts = await enrichProductsWithExtraData(ctx, [product])
+    return enrichedProducts[0]
   },
 })

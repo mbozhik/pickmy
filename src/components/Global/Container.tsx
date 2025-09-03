@@ -6,7 +6,7 @@ export const BOX = {
 }
 
 export const CONTAINER = {
-  height: 'min-h-[calc(100vh-125px)] sm:min-h-[calc(100vh-140px)]',
+  height: 'min-h-[calc(100vh-125px)] xl:min-h-[calc(100vh-110px)] sm:min-h-[calc(100vh-140px)]',
   offset: {
     small: 'pt-20 xl:pt-16 sm:pt-14',
     large: 'pt-28 xl:pt-24 sm:pt-20',

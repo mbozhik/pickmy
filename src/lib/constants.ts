@@ -18,13 +18,9 @@ export const PATHS = {
     },
   },
   internal: {
-    expert: {
-      label: 'Эксперт',
-      link: '/expert',
-    },
-    product: {
-      label: 'Продукт',
-      link: '/product',
+    category: {
+      label: 'Категория',
+      link: '/products?category=',
     },
   },
   additional: {

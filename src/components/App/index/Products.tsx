@@ -8,8 +8,8 @@ import {H1, H5, P} from '~/UI/Typography'
 import Button from '~/UI/Button'
 
 export default async function Products() {
-  const preloadedFeaturedProducts = await preloadQuery(api.tables.products.getFeaturedProducts)
-  const featuredProducts = preloadedQueryResult(preloadedFeaturedProducts)
+  const preloadedProductsFeatured = await preloadQuery(api.tables.products.getProductsFeatured)
+  const productsFeatured = preloadedQueryResult(preloadedProductsFeatured)
 
   return (
     <section data-section="products-index" id="products" className="space-y-10 sm:space-y-6">
@@ -27,7 +27,7 @@ export default async function Products() {
       </div>
 
       <Grid
-        data={featuredProducts} // только featured = true
+        data={productsFeatured} // только featured = true
         renderItem={(product) => <ProductCard product={product} />}
       />
     </section>

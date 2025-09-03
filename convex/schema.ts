@@ -10,9 +10,10 @@ export default defineSchema({
     featured: v.boolean(),
     slug: v.string(),
   })
-    .index('by_category', ['category'])
     .index('by_featured', ['featured'])
-    .index('by_expert', ['expert']),
+    .index('by_category', ['category'])
+    .index('by_expert', ['expert'])
+    .index('by_slug', ['slug']),
 
   categories: defineTable({
     name: v.string(),
