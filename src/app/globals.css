@@ -1,2 +1,15 @@
 @import 'tailwindcss';
 @config '../../tailwind.config.ts';
+
+/* Clerk UserButton customization */
+.cl-avatarBox.cl-userButtonAvatarBox {
+  --avatar-size: 34px;
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+}
+
+@media (max-width: 500px) {
+  .cl-avatarBox.cl-userButtonAvatarBox {
+    --avatar-size: 26px;
+  }
+}

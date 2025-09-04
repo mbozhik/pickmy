@@ -4,7 +4,9 @@ import Link from 'next/link'
 
 type Props = {
   variant: 'solid' | 'outline'
-  text: string
+
+  text?: string
+  children?: React.ReactNode
 
   to?: string
   target?: '_self' | '_blank'
@@ -24,20 +26,20 @@ export const BUTTON_STYLES = {
   },
 } as const
 
-export default function Button({variant, text, to, target, type, disabled, className, onClick}: Props) {
+export default function Button({variant, text, children, to, target, type, disabled, className, onClick}: Props) {
   const buttonClasses = cn(BUTTON_STYLES.base, BUTTON_STYLES.button[variant], className)
 
   if (to) {
     return (
       <Link href={to} target={target || '_self'} className={buttonClasses}>
-        {text}
+        {children || text}
       </Link>
     )
   }
 
   return (
     <button type={type} className={buttonClasses} disabled={disabled} onClick={onClick}>
-      {text}
+      {children || text}
     </button>
   )
 }

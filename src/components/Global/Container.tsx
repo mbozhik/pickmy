@@ -2,7 +2,7 @@ import {cn} from '@/lib/utils'
 
 export const BOX = {
   container: 'w-[70%] xl:w-[80%] sm:w-auto mx-auto sm:mx-2.5',
-  header: 'w-[68%] xl:w-[78%] sm:w-auto mx-auto sm:mx-3',
+  header: 'w-[68%] xl:w-[78%] sm:w-auto mx-auto sm:mx-1.5',
 }
 
 export const CONTAINER = {
