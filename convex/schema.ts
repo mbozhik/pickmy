@@ -33,7 +33,10 @@ export default defineSchema({
     username: v.string(),
     link: v.string(),
     featured: v.boolean(),
+    userId: v.id('users'),
+    isActive: v.boolean(),
   })
     .index('by_featured', ['featured'])
-    .index('by_username', ['username']),
+    .index('by_username', ['username'])
+    .index('by_userId', ['userId']),
 })

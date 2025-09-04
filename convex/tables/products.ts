@@ -77,7 +77,6 @@ export const createProduct = mutation({
     slug: v.string(),
     featured: v.boolean(),
   },
-  returns: v.id('products'),
   handler: async (ctx, args) => {
     const product = await ctx.db.insert('products', {
       name: args.name,
@@ -93,7 +92,6 @@ export const createProduct = mutation({
 
 export const getProducts = query({
   args: {},
-  returns: v.array(productWithExtraData),
   handler: async (ctx) => {
     const products = await ctx.db.query('products').collect()
     return enrichProductsWithExtraData(ctx, products)
@@ -102,7 +100,6 @@ export const getProducts = query({
 
 export const getProductsFeatured = query({
   args: {},
-  returns: v.array(productWithExtraData),
   handler: async (ctx) => {
     const products = await ctx.db
       .query('products')
@@ -115,7 +112,6 @@ export const getProductsFeatured = query({
 
 export const getProductsByCategory = query({
   args: {categoryId: v.id('categories')},
-  returns: v.array(productWithExtraData),
   handler: async (ctx, args) => {
     const products = await ctx.db
       .query('products')
@@ -128,7 +124,6 @@ export const getProductsByCategory = query({
 
 export const getProductsByExpert = query({
   args: {expertId: v.id('experts')},
-  returns: v.array(productWithExtraData),
   handler: async (ctx, args) => {
     const products = await ctx.db
       .query('products')
