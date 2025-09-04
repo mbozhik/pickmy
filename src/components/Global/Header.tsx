@@ -1,8 +1,11 @@
 'use client'
 
+import {LogOut} from 'lucide-react'
+
 import {PATHS} from '@/lib/constants'
 import {BOX} from '~/Global/Container'
 import {BUTTON_STYLES} from '~/UI/Button'
+import {useCurrentUser} from '@/utils/use-current-user'
 
 import {cn} from '@/lib/utils'
 
@@ -19,6 +22,7 @@ export default function Header() {
   const {scrollY} = useScroll()
   const [isScrolled, setIsScrolled] = useState(false)
   const [lastScrollY, setLastScrollY] = useState(0)
+  const {isExpertOrAdmin} = useCurrentUser()
 
   const pathname = usePathname()
   const isHomePage = pathname === '/'
@@ -41,8 +45,8 @@ export default function Header() {
     setLastScrollY(latest)
   })
 
-  function HeaderButton({children, to}: {children: React.ReactNode; to?: string}) {
-    return <div className={cn(BUTTON_STYLES.base, scrolledStyles ? BUTTON_STYLES.button.solid : BUTTON_STYLES.button.outline, 'px-4.5 py-1.5 sm:px-2.5 sm:py-1.25')}>{to ? <Link href={to}>{children}</Link> : children}</div>
+  function HeaderButton({children, to, icon = false}: {children: React.ReactNode; to?: string; icon?: boolean}) {
+    return <div className={cn(BUTTON_STYLES.base, scrolledStyles ? BUTTON_STYLES.button.solid : BUTTON_STYLES.button.outline, !icon ? 'px-4.5 py-1.5 sm:px-2.5 sm:py-1.25' : 'px-2 py-1.5 sm:px-1.5 sm:py-1.25')}>{to ? <Link href={to}>{children}</Link> : children}</div>
   }
 
   return (
@@ -69,9 +73,17 @@ export default function Header() {
             <Authenticated>
               <UserButton />
 
-              <HeaderButton>
-                <SignOutButton>Выйти</SignOutButton>
-              </HeaderButton>
+              <div className="flex gap-1.5 xl:gap-1">
+                {isExpertOrAdmin && <HeaderButton to={PATHS.internal.dashboard.link}>{PATHS.internal.dashboard.label}</HeaderButton>}
+
+                <HeaderButton icon={true}>
+                  <SignOutButton>
+                    <div className="size-full grid place-items-center">
+                      <LogOut className="size-4.5 sm:size-4 sm:-mr-0.5" strokeWidth={1.7} />
+                    </div>
+                  </SignOutButton>
+                </HeaderButton>
+              </div>
             </Authenticated>
 
             <Unauthenticated>

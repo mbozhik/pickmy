@@ -14,6 +14,10 @@ export const PATHS = {
     },
   },
   internal: {
+    dashboard: {
+      label: 'Панель',
+      link: '/dashboard',
+    },
     category: {
       label: 'Категория',
       link: '/products?category=',
