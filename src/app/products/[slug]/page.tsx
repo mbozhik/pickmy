@@ -46,7 +46,7 @@ export default async function ProductsItemPage({params}: ParamsProps) {
     <Container spacing="small">
       <div className="grid grid-cols-5 sm:grid-cols-1 gap-20 xl:gap-12 sm:gap-4">
         <div className={cn('col-span-2 sm:col-span-1', 'py-14 sm:py-8 grid place-items-center', 'group bg-gray')}>
-          <Image className={cn('rotate-45', 'size-[15vw] xl:size-[20vw] sm:size-[52vw] object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`Cargo | ${product.name} – ${product.caption}`} />
+          <Image className={cn('rotate-45', 'size-[15vw] xl:size-[20vw] sm:size-[52vw] object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`pickmy | ${product.name} – ${product.caption}`} />
         </div>
 
         <div className={cn('col-span-3 sm:col-span-1', 'flex flex-col justify-between sm:gap-8')}>

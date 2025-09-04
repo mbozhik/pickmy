@@ -4,8 +4,8 @@ import {Inter, Playfair_Display} from 'next/font/google'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s — CARGO',
-    default: 'CARGO',
+    template: '%s — PickMy',
+    default: 'PickMy',
   },
 }
 

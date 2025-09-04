@@ -1,5 +1,5 @@
-# ⚡️cargo
+# ⚡️pickmy
 
 ```sh
-git clone https://github.com/mbozhik/cargo.git && cd cargo && bun i && code .
+git clone https://github.com/mbozhik/pickmy.git && cd pickmy && bun i && code .
 ```

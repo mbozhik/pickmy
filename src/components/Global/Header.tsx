@@ -41,7 +41,7 @@ export default function Header() {
       <div className={cn(BOX.header, 'px-3 py-1.5', 'flex items-center justify-between', 'border rounded-lg duration-300', isScrolled || !isHomePage ? 'bg-background/70 backdrop-blur-[4px] border-neutral-200/50 text-foreground' : 'bg-transparent border-transparent text-background')}>
         <Link href="/">
           <H3 offset={0} className="-mt-1">
-            cargo
+            pickmy
           </H3>
         </Link>
 

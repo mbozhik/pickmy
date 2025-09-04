@@ -32,7 +32,7 @@ export function ProductCard({product}: {product: ProductWithExtraData}) {
   return (
     <Link href={`${PATHS.global.products.link}/${product.slug}`} className={cn('p-5 xl:p-4', 'flex flex-col items-center gap-2', 'bg-gray', 'group')}>
       <div className="py-10 xl:py-8 sm:py-6">
-        <Image className={cn('rotate-45', 'size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`Cargo | ${product.name} – ${product.caption}`} />
+        <Image className={cn('rotate-45', 'size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`pickmy | ${product.name} – ${product.caption}`} />
       </div>
 
       <div className="text-center">
@@ -47,7 +47,7 @@ export function ExpertCard({expert}: {expert: Table<'experts'>}) {
   return (
     <Link href={`${PATHS.global.experts.link}/${expert.username}`} className={cn('p-5 xl:p-4', 'flex flex-col items-center gap-2', 'bg-gray', 'group')}>
       <div className="py-10 xl:py-8 sm:py-6">
-        <Image className={cn('size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`Cargo | ${expert.name} – ${expert.role}`} />
+        <Image className={cn('size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`pickmy | ${expert.name} – ${expert.role}`} />
       </div>
 
       <div className="text-center">
