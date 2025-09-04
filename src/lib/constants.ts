@@ -12,10 +12,6 @@ export const PATHS = {
       label: 'О нас',
       link: '/about',
     },
-    contact: {
-      label: 'Контакты',
-      link: '/contact',
-    },
   },
   internal: {
     category: {
