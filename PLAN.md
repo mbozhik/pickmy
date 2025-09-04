@@ -62,8 +62,8 @@ _Приоритет: Высокий_
 
 #### 3.2 Таблица пользователей
 
-- [ ] Схема `users` (clerkId, email, role, isActive, profile)
-- [ ] Роли: 'user', 'expert', 'admin'
+- [х] Схема `users` (clerkId, email, role)
+- [х] Роли: 'user', 'expert', 'admin'
 - [ ] Связь users ↔ experts (один к одному)
 
 #### 3.3 Система активации
