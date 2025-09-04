@@ -20,6 +20,15 @@ export default {
       },
       neutral: colors.neutral,
 
+      destructive: {
+        DEFAULT: '#dc2626',
+        foreground: '#ffffff',
+      },
+      success: {
+        DEFAULT: '#16a34a',
+        foreground: '#ffffff',
+      },
+
       transparent: colors.transparent,
     }),
     extend: {},
