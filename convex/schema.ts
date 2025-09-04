@@ -27,5 +27,7 @@ export default defineSchema({
     username: v.string(),
     link: v.string(),
     featured: v.boolean(),
-  }),
+  })
+    .index('by_featured', ['featured'])
+    .index('by_username', ['username']),
 })

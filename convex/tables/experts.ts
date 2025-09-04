@@ -56,7 +56,31 @@ export const getFeaturedExperts = query({
   handler: async (ctx) => {
     return await ctx.db
       .query('experts')
-      .filter((q) => q.eq(q.field('featured'), true))
+      .withIndex('by_featured', (q) => q.eq('featured', true))
       .take(8)
+  },
+})
+
+export const getExpertByUsername = query({
+  args: {username: v.string()},
+  returns: v.union(
+    v.object({
+      _id: v.id('experts'),
+      _creationTime: v.number(),
+      name: v.string(),
+      role: v.string(),
+      username: v.string(),
+      link: v.string(),
+      featured: v.boolean(),
+    }),
+    v.null(),
+  ),
+  handler: async (ctx, args) => {
+    const expert = await ctx.db
+      .query('experts')
+      .withIndex('by_username', (q) => q.eq('username', args.username))
+      .unique()
+
+    return expert
   },
 })
