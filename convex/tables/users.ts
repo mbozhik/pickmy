@@ -1,4 +1,4 @@
-import {internalMutation, query, type QueryCtx} from '@convex/_generated/server'
+import {internalMutation, mutation, query, type QueryCtx} from '@convex/_generated/server'
 import {UserJSON} from '@clerk/backend'
 import {v, Validator} from 'convex/values'
 
@@ -61,6 +61,34 @@ export async function getCurrentUser(ctx: QueryCtx) {
   }
   return await userByExternalId(ctx, identity.subject)
 }
+
+export const getAllUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query('users').collect()
+  },
+})
+
+export const updateUser = mutation({
+  args: {
+    id: v.id('users'),
+    email: v.string(),
+    role: v.union(v.literal('user'), v.literal('expert'), v.literal('admin')),
+  },
+  handler: async (ctx, args) => {
+    const {id, ...updates} = args
+    await ctx.db.patch(id, updates)
+    return id
+  },
+})
+
+export const deleteUser = mutation({
+  args: {id: v.id('users')},
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id)
+    return args.id
+  },
+})
 
 async function userByExternalId(ctx: QueryCtx, externalId: string) {
   return await ctx.db

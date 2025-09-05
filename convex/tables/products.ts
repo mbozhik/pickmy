@@ -98,6 +98,38 @@ export const getProducts = query({
   },
 })
 
+export const getAllProducts = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query('products').collect()
+  },
+})
+
+export const updateProduct = mutation({
+  args: {
+    id: v.id('products'),
+    name: v.string(),
+    caption: v.string(),
+    slug: v.string(),
+    category: v.id('categories'),
+    expert: v.id('experts'),
+    featured: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const {id, ...updates} = args
+    await ctx.db.patch(id, updates)
+    return id
+  },
+})
+
+export const deleteProduct = mutation({
+  args: {id: v.id('products')},
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id)
+    return args.id
+  },
+})
+
 export const getProductsFeatured = query({
   args: {},
   handler: async (ctx) => {

@@ -35,6 +35,39 @@ export const getExperts = query({
   },
 })
 
+export const getAllExperts = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query('experts').collect()
+  },
+})
+
+export const updateExpert = mutation({
+  args: {
+    id: v.id('experts'),
+    name: v.string(),
+    role: v.string(),
+    username: v.string(),
+    link: v.string(),
+    featured: v.boolean(),
+    userId: v.id('users'),
+    isActive: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const {id, ...updates} = args
+    await ctx.db.patch(id, updates)
+    return id
+  },
+})
+
+export const deleteExpert = mutation({
+  args: {id: v.id('experts')},
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id)
+    return args.id
+  },
+})
+
 export const getFeaturedExperts = query({
   args: {},
   handler: async (ctx) => {

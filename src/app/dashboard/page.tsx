@@ -8,6 +8,7 @@ import {useEffect} from 'react'
 import Container from '~/Global/Container'
 import PageHero from '~/UI/PageHero'
 import {P} from '~/UI/Typography'
+import AdminPanel from '~~/dashboard/AdminPanel'
 
 export default function DashboardPage() {
   const {isLoading, isExpertOrAdmin, role} = useCurrentUser()
@@ -36,6 +37,8 @@ export default function DashboardPage() {
   return (
     <Container spacing="small">
       <PageHero heading="Панель управления" tagline={`${role === 'admin' ? 'Администратор' : 'Эксперт'}`} />
+
+      {role === 'admin' && <AdminPanel />}
     </Container>
   )
 }

@@ -2,7 +2,7 @@
 
 import {Eye, Edit, Trash2, Plus, Check, X} from 'lucide-react'
 
-import type {TableData, TableTabs} from '~~/dashboard/AdminPanel'
+import type {AdminTableData, AdminTableTabs} from '~~/dashboard/AdminPanel'
 
 import * as React from 'react'
 import {ColumnDef, flexRender, getCoreRowModel, getSortedRowModel, SortingState, useReactTable} from '@tanstack/react-table'
@@ -13,9 +13,9 @@ import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, A
 import {Table as TableElement, TableBody, TableCell, TableHead, TableHeader, TableRow} from '~/core/table'
 import {Toggle} from '~/core/toggle'
 
-interface DataTableProps<T extends TableData> {
+interface DataTableProps<T extends AdminTableData> {
   data: T[]
-  entityType: TableTabs
+  entityType: AdminTableTabs
   onView: (item: T) => void
   onEdit: (item: T) => void
   onDelete: (id: string) => void
@@ -26,7 +26,7 @@ const truncateId = (id: string, maxLength: number = 10) => {
   return id.length > maxLength ? `${id.substring(0, maxLength)}..` : id
 }
 
-const createColumns = <T extends TableData>(entityType: TableTabs, onView: (item: T) => void, onEdit: (item: T) => void, onDelete: (id: string) => void): ColumnDef<T>[] => {
+const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onView: (item: T) => void, onEdit: (item: T) => void, onDelete: (id: string) => void): ColumnDef<T>[] => {
   const baseColumns: ColumnDef<T>[] = [
     {
       accessorKey: '_id',
@@ -201,7 +201,7 @@ const createColumns = <T extends TableData>(entityType: TableTabs, onView: (item
   return baseColumns
 }
 
-export default function DataTable<T extends TableData>({data, entityType, onView, onEdit, onDelete, onCreate}: DataTableProps<T>) {
+export default function DataTable<T extends AdminTableData>({data, entityType, onView, onEdit, onDelete, onCreate}: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
 
   const columns = React.useMemo(() => createColumns(entityType, onView, onEdit, onDelete), [entityType, onView, onEdit, onDelete])
@@ -217,7 +217,7 @@ export default function DataTable<T extends TableData>({data, entityType, onView
     },
   })
 
-  const getEntityLabel = (type: TableTabs, action: 'view' | 'edit') => {
+  const getEntityLabel = (type: AdminTableTabs, action: 'view' | 'edit') => {
     switch (type) {
       case 'users':
         switch (action) {

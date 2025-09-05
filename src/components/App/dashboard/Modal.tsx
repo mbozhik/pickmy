@@ -1,7 +1,7 @@
 'use client'
 
 import type {Id} from '@convex/_generated/dataModel'
-import type {TableData, TableTabs} from '~~/dashboard/AdminPanel'
+import type {AdminTableData, AdminTableTabs} from '~~/dashboard/AdminPanel'
 
 import {useState, useEffect} from 'react'
 import {zodResolver} from '@hookform/resolvers/zod'
@@ -64,9 +64,9 @@ type FormValues = UserFormValues | ProductFormValues | CategoryFormValues | Expe
 interface EntityModalProps {
   isOpen: boolean
   onClose: () => void
-  entityType: TableTabs
+  entityType: AdminTableTabs
   mode: ModalMode
-  data?: TableData
+  data?: AdminTableData
   onSuccess?: () => void
 }
 
@@ -597,7 +597,7 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
 }
 
 // Утилиты
-function getEntityName(entityType: TableTabs): string {
+function getEntityName(entityType: AdminTableTabs): string {
   const names = {
     users: 'Пользователь',
     products: 'Товар',
@@ -607,7 +607,7 @@ function getEntityName(entityType: TableTabs): string {
   return names[entityType]
 }
 
-function getEntityGender(entityType: TableTabs): string {
+function getEntityGender(entityType: AdminTableTabs): string {
   const genders = {
     users: '',
     products: '',
