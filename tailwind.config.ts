@@ -10,6 +10,7 @@ export default {
     fontFamily: {
       sans: ['var(--font-inter)', ...defaultTheme.fontFamily.sans],
       serif: ['var(--font-playfair)', ...defaultTheme.fontFamily.serif],
+      mono: [...defaultTheme.fontFamily.mono],
     },
     colors: ({colors}) => ({
       background: colors.white,

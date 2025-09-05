@@ -7,7 +7,7 @@ import {ruRU} from '@clerk/localizations'
 
 import Header from '~/Global/Header'
 import Footer from '~/Global/Footer'
-import {Toaster} from '~/Core/sonner'
+import {Toaster} from '~/core/sonner'
 
 import YandexMetrika from '~/Global/Analytics'
 import {ClerkProvider} from '@clerk/nextjs'
