@@ -229,9 +229,9 @@ export default function DataTable<T extends AdminTableData>({data, entityType, o
       case 'products':
         switch (action) {
           case 'view':
-            return 'Товары'
+            return 'Продукты'
           case 'edit':
-            return 'Товар'
+            return 'Продукт'
         }
       case 'categories':
         switch (action) {

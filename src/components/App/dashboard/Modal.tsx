@@ -2,6 +2,7 @@
 
 import type {Id} from '@convex/_generated/dataModel'
 import type {AdminTableData, AdminTableTabs} from '~~/dashboard/AdminPanel'
+import {api} from '@convex/_generated/api'
 
 import {useState, useEffect} from 'react'
 import {zodResolver} from '@hookform/resolvers/zod'
@@ -9,20 +10,18 @@ import {useForm} from 'react-hook-form'
 import {z} from 'zod'
 import {toast} from 'sonner'
 import {useMutation, useQuery} from 'convex/react'
-import {api} from '@convex/_generated/api'
 
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter} from '~/Core/dialog'
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '~/Core/form'
-import {Input} from '~/Core/input'
-import {Textarea} from '~/Core/textarea'
-import {Button} from '~/Core/button'
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/Core/select'
-import {Checkbox} from '~/Core/checkbox'
-import {Badge} from '~/Core/badge'
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter} from '~/core/dialog'
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '~/core/form'
+import {Input} from '~/core/input'
+import {Textarea} from '~/core/textarea'
+import {Button} from '~/core/button'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/core/select'
+import {Checkbox} from '~/core/checkbox'
+import {Badge} from '~/core/badge'
 
 export type ModalMode = 'create' | 'edit' | 'view'
 
-// Схемы валидации для каждой сущности
 const userSchema = z.object({
   email: z.email('Некорректный email'),
   role: z.enum(['user', 'expert', 'admin'], {message: 'Выберите роль'}),
@@ -31,7 +30,7 @@ const userSchema = z.object({
 const productSchema = z.object({
   name: z.string().min(1, 'Название обязательно'),
   caption: z.string().min(1, 'Описание обязательно'),
-  slug: z.string().min(1, 'Slug обязателен'),
+  slug: z.string().min(1, 'Токен обязателен'),
   category: z.string().min(1, 'Выберите категорию'),
   expert: z.string().min(1, 'Выберите эксперта'),
   featured: z.boolean().default(false),
@@ -40,20 +39,26 @@ const productSchema = z.object({
 const categorySchema = z.object({
   name: z.string().min(1, 'Название обязательно'),
   description: z.string().min(1, 'Описание обязательно'),
-  slug: z.string().min(1, 'Slug обязателен'),
+  slug: z.string().min(1, 'Токен обязателен'),
 })
 
 const expertSchema = z.object({
   name: z.string().min(1, 'Имя обязательно'),
   role: z.string().min(1, 'Роль обязательна'),
-  username: z.string().min(1, 'Username обязателен'),
-  link: z.string().url('Некорректная ссылка').min(1, 'Ссылка обязательна'),
+  username: z.string().min(1, 'Токен обязателен'),
+  link: z.url('Некорректная ссылка').min(1, 'Ссылка обязательна'),
   userId: z.string().min(1, 'Выберите пользователя'),
   featured: z.boolean().default(false),
   isActive: z.boolean().default(true),
 })
 
-// Типы для form values
+const expertSelfEditSchema = z.object({
+  name: z.string().min(1, 'Имя обязательно'),
+  role: z.string().min(1, 'Роль обязательна'),
+  username: z.string().min(1, 'Токен обязателен'),
+  link: z.url('Некорректная ссылка').min(1, 'Ссылка обязательна'),
+})
+
 type UserFormValues = z.infer<typeof userSchema>
 type ProductFormValues = z.infer<typeof productSchema>
 type CategoryFormValues = z.infer<typeof categorySchema>
@@ -61,24 +66,24 @@ type ExpertFormValues = z.infer<typeof expertSchema>
 
 type FormValues = UserFormValues | ProductFormValues | CategoryFormValues | ExpertFormValues
 
-interface EntityModalProps {
+interface ModalProps {
   isOpen: boolean
   onClose: () => void
   entityType: AdminTableTabs
   mode: ModalMode
   data?: AdminTableData
   onSuccess?: () => void
+  isExpertMode?: boolean // flag for expert panel (limited set of fields)
 }
 
-export default function EntityModal({isOpen, onClose, entityType, mode, data, onSuccess}: EntityModalProps) {
+export default function Modal({isOpen, onClose, entityType, mode, data, onSuccess, isExpertMode = false}: ModalProps) {
   const [isLoading, setIsLoading] = useState(false)
 
-  // Загружаем данные для select'ов
+  // data for selects
   const categories = useQuery(api.tables.categories.getCategories, entityType === 'products' ? {} : 'skip')
   const experts = useQuery(api.tables.experts.getAllExperts, entityType === 'products' ? {} : 'skip')
   const users = useQuery(api.tables.users.getAllUsers, entityType === 'experts' ? {} : 'skip')
 
-  // Мутации для создания и обновления
   const createProduct = useMutation(api.tables.products.createProduct)
   const updateProduct = useMutation(api.tables.products.updateProduct)
   const createCategory = useMutation(api.tables.categories.createCategory)
@@ -96,7 +101,7 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
       case 'categories':
         return categorySchema
       case 'experts':
-        return expertSchema
+        return isExpertMode ? expertSelfEditSchema : expertSchema
     }
   }
 
@@ -105,12 +110,20 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
       users: {email: '', role: 'user' as const},
       products: {name: '', caption: '', slug: '', category: '', expert: '', featured: false},
       categories: {name: '', description: '', slug: ''},
-      experts: {name: '', role: '', username: '', link: '', userId: '', featured: false, isActive: true},
+      experts: isExpertMode ? {name: '', role: '', username: '', link: ''} : {name: '', role: '', username: '', link: '', userId: '', featured: false, isActive: true},
     }
 
     if (data && data._id && mode !== 'create') {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const {_id, _creationTime, ...editableData} = data
+
+      // In expert mode we exclude system fields
+      if (isExpertMode && entityType === 'experts') {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const {userId, featured, isActive, ...expertSafeData} = editableData as Record<string, unknown>
+        return {...defaults[entityType], ...expertSafeData}
+      }
+
       return {...defaults[entityType], ...editableData}
     }
 
@@ -123,7 +136,7 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
     defaultValues: getDefaultValues(),
   })
 
-  // Сброс формы при смене данных
+  // Reset form on data change
   useEffect(() => {
     const defaultValues = getDefaultValues()
     form.reset(defaultValues)
@@ -201,16 +214,34 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
           }
           case 'experts': {
             const expertValues = values as ExpertFormValues
-            await updateExpert({
-              id: data._id as Id<'experts'>,
-              name: expertValues.name,
-              role: expertValues.role,
-              username: expertValues.username,
-              link: expertValues.link,
-              userId: expertValues.userId as Id<'users'>,
-              featured: expertValues.featured,
-              isActive: expertValues.isActive,
-            })
+
+            if (isExpertMode) {
+              // In expert mode we save only basic fields
+              const expertData = data as Record<string, unknown>
+              await updateExpert({
+                id: data._id as Id<'experts'>,
+                name: expertValues.name,
+                role: expertValues.role,
+                username: expertValues.username,
+                link: expertValues.link,
+                // System fields are taken from existing data
+                userId: expertData.userId as Id<'users'>,
+                featured: expertData.featured as boolean,
+                isActive: expertData.isActive as boolean,
+              })
+            } else {
+              // In admin mode we save all fields
+              await updateExpert({
+                id: data._id as Id<'experts'>,
+                name: expertValues.name,
+                role: expertValues.role,
+                username: expertValues.username,
+                link: expertValues.link,
+                userId: expertValues.userId as Id<'users'>,
+                featured: expertValues.featured,
+                isActive: expertValues.isActive,
+              })
+            }
             break
           }
           case 'users': {
@@ -239,7 +270,7 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
   const getTitle = () => {
     const titles = {
       users: {create: 'Создать пользователя', edit: 'Редактировать пользователя', view: 'Просмотр пользователя'},
-      products: {create: 'Создать товар', edit: 'Редактировать товар', view: 'Просмотр товара'},
+      products: {create: 'Создать продукт', edit: 'Редактировать продукт', view: 'Просмотр продукта'},
       categories: {create: 'Создать категорию', edit: 'Редактировать категорию', view: 'Просмотр категории'},
       experts: {create: 'Создать эксперта', edit: 'Редактировать эксперта', view: 'Просмотр эксперта'},
     }
@@ -301,7 +332,7 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
                 <FormItem>
                   <FormLabel>Название</FormLabel>
                   <FormControl>
-                    <Input placeholder="Название товара" disabled={isReadonly} {...field} />
+                    <Input placeholder="Название продукта" disabled={isReadonly} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -314,7 +345,7 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
                 <FormItem>
                   <FormLabel>Описание</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Описание товара" disabled={isReadonly} {...field} />
+                    <Textarea placeholder="Описание продукта" disabled={isReadonly} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -499,60 +530,65 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="userId"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>Пользователь</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadonly}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Выберите пользователя" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {users?.map((user) => (
-                        <SelectItem key={user._id} value={user._id}>
-                          {user.email}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="featured"
-              render={({field}) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isReadonly} />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="cursor-pointer">Рекомендуемый</FormLabel>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="isActive"
-              render={({field}) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isReadonly} />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel className="cursor-pointer">Активный</FormLabel>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+            {!isExpertMode && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="userId"
+                  render={({field}) => (
+                    <FormItem>
+                      <FormLabel>Пользователь</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadonly}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите пользователя" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {users?.map((user) => (
+                            <SelectItem key={user._id} value={user._id}>
+                              {user.email}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="featured"
+                  render={({field}) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isReadonly} />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="cursor-pointer">Рекомендуемый</FormLabel>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({field}) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isReadonly} />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="cursor-pointer">Активный</FormLabel>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
           </>
         )
     }
@@ -565,10 +601,10 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
           <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
 
-        {/* Показываем ID для режимов просмотра и редактирования */}
+        {/* We show ID for view and edit modes */}
         {data?._id && mode !== 'create' && (
           <div className="mb-4">
-            <span className="text-sm font-medium text-muted-foreground">ID: </span>
+            <span className="text-sm font-medium text-neutral-600">ID: </span>
             <Badge variant="secondary" className="font-mono text-xs">
               {data._id.slice(-6)}
             </Badge>
@@ -596,11 +632,10 @@ export default function EntityModal({isOpen, onClose, entityType, mode, data, on
   )
 }
 
-// Утилиты
 function getEntityName(entityType: AdminTableTabs): string {
   const names = {
     users: 'Пользователь',
-    products: 'Товар',
+    products: 'Продукт',
     categories: 'Категория',
     experts: 'Эксперт',
   }

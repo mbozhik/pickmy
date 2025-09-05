@@ -8,7 +8,7 @@ const badgeVariants = cva('inline-flex items-center justify-center rounded-md bo
   variants: {
     variant: {
       default: 'border-transparent bg-foreground text-background [a&]:hover:bg-foreground/90',
-      secondary: 'border-transparent bg-neutral-100 text-foreground [a&]:hover:bg-neutral-200',
+      secondary: 'border-transparent bg-neutral-200 text-foreground [a&]:hover:bg-neutral-200',
       destructive: 'border-transparent bg-destructive text-destructive-foreground [a&]:hover:bg-destructive/90',
       outline: 'text-foreground border-neutral-200 [a&]:hover:bg-neutral-100',
     },

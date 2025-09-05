@@ -9,6 +9,7 @@ import Container from '~/Global/Container'
 import PageHero from '~/UI/PageHero'
 import {P} from '~/UI/Typography'
 import AdminPanel from '~~/dashboard/AdminPanel'
+import ExpertPanel from '~~/dashboard/ExpertPanel'
 
 export default function DashboardPage() {
   const {isLoading, isExpertOrAdmin, role} = useCurrentUser()
@@ -39,6 +40,7 @@ export default function DashboardPage() {
       <PageHero heading="Панель управления" tagline={`${role === 'admin' ? 'Администратор' : 'Эксперт'}`} />
 
       {role === 'admin' && <AdminPanel />}
+      {role === 'expert' && <ExpertPanel />}
     </Container>
   )
 }

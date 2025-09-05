@@ -156,6 +156,7 @@ export const getProductsByCategory = query({
 
 export const getProductsByExpert = query({
   args: {expertId: v.id('experts')},
+  returns: v.array(productWithExtraData),
   handler: async (ctx, args) => {
     const products = await ctx.db
       .query('products')

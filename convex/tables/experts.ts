@@ -91,3 +91,15 @@ export const getExpertByUsername = query({
     return expert
   },
 })
+
+export const getExpertByUserId = query({
+  args: {userId: v.id('users')},
+  handler: async (ctx, args) => {
+    const expert = await ctx.db
+      .query('experts')
+      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .unique()
+
+    return expert
+  },
+})
