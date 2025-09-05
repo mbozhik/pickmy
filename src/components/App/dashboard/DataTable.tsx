@@ -20,13 +20,14 @@ interface DataTableProps<T extends AdminTableData> {
   onEdit: (item: T) => void
   onDelete: (id: string) => void
   onCreate: () => void
+  isExpertMode?: boolean // flag for expert panel (limited columns)
 }
 
 const truncateId = (id: string, maxLength: number = 10) => {
   return id.length > maxLength ? `${id.substring(0, maxLength)}..` : id
 }
 
-const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onView: (item: T) => void, onEdit: (item: T) => void, onDelete: (id: string) => void): ColumnDef<T>[] => {
+const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onView: (item: T) => void, onEdit: (item: T) => void, onDelete: (id: string) => void, isExpertMode: boolean = false): ColumnDef<T>[] => {
   const baseColumns: ColumnDef<T>[] = [
     {
       accessorKey: '_id',
@@ -57,7 +58,11 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
               expert: 'Эксперт',
               admin: 'Администратор',
             }
-            return <div>{roleLabels[role as keyof typeof roleLabels]}</div>
+            return (
+              <Badge variant="secondary" className="text-xs">
+                {roleLabels[role as keyof typeof roleLabels]}
+              </Badge>
+            )
           },
         },
       )
@@ -71,11 +76,41 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
           cell: ({row}) => <div>{row.getValue('name')}</div>,
         },
         {
+          accessorKey: 'categoryName',
+          header: 'Категория',
+          cell: ({row}) => {
+            const categoryName = row.getValue('categoryName') as string
+            return (
+              <Badge variant="secondary" className="text-xs tracking-tight">
+                {categoryName}
+              </Badge>
+            )
+          },
+        },
+        {
           accessorKey: 'caption',
           header: 'Описание',
           cell: ({row}) => <div className="max-w-xs truncate">{row.getValue('caption')}</div>,
         },
         {
+          accessorKey: 'price',
+          header: 'Цена',
+          cell: ({row}) => {
+            const price = row.getValue('price') as number
+            return <div>{price} ₽</div>
+          },
+        },
+        {
+          accessorKey: 'imageUrl',
+          header: '',
+          size: 0,
+          cell: () => null,
+        },
+      )
+
+      // Add featured column only for admin mode
+      if (!isExpertMode) {
+        baseColumns.push({
           accessorKey: 'featured',
           header: 'Рекомендуемый',
           cell: ({row}) => {
@@ -86,8 +121,9 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
               </Toggle>
             )
           },
-        },
-      )
+        })
+      }
+
       break
 
     case 'categories':
@@ -105,7 +141,11 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
         {
           accessorKey: 'slug',
           header: 'Токен',
-          cell: ({row}) => <div className="font-mono text-xs">{row.getValue('slug')}</div>,
+          cell: ({row}) => (
+            <Badge variant="secondary" className="font-mono text-xs">
+              {row.getValue('slug')}
+            </Badge>
+          ),
         },
       )
       break
@@ -125,7 +165,11 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
         {
           accessorKey: 'username',
           header: 'Токен',
-          cell: ({row}) => <div className="font-mono">{row.getValue('username')}</div>,
+          cell: ({row}) => (
+            <Badge variant="secondary" className="font-mono text-xs">
+              {row.getValue('username')}
+            </Badge>
+          ),
         },
         {
           accessorKey: 'featured',
@@ -201,10 +245,10 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
   return baseColumns
 }
 
-export default function DataTable<T extends AdminTableData>({data, entityType, onView, onEdit, onDelete, onCreate}: DataTableProps<T>) {
+export default function DataTable<T extends AdminTableData>({data, entityType, onView, onEdit, onDelete, onCreate, isExpertMode = false}: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
 
-  const columns = React.useMemo(() => createColumns(entityType, onView, onEdit, onDelete), [entityType, onView, onEdit, onDelete])
+  const columns = React.useMemo(() => createColumns(entityType, onView, onEdit, onDelete, isExpertMode), [entityType, onView, onEdit, onDelete, isExpertMode])
 
   const table = useReactTable({
     data,
@@ -255,9 +299,10 @@ export default function DataTable<T extends AdminTableData>({data, entityType, o
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">{getEntityLabel(entityType, 'view')}</h2>
 
-        <Button onClick={onCreate} className="gap-2">
+        <Button onClick={onCreate} className="gap-2 sm:text-sm sm:px-3 sm:py-2">
           <Plus className="h-4 w-4" />
-          Создать {getEntityLabel(entityType, 'edit')}
+          <span className="sm:hidden">Создать {getEntityLabel(entityType, 'edit')}</span>
+          <span className="hidden sm:inline">Создать</span>
         </Button>
       </div>
 

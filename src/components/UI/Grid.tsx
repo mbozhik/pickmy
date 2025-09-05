@@ -21,6 +21,7 @@ export type ProductWithExtraData = Omit<Table<'products'>, 'category' | 'expert'
     role: string
     username: string
   }
+  imageUrl?: string
 }
 
 type GridProps<T> = {
@@ -31,9 +32,7 @@ type GridProps<T> = {
 export function ProductCard({product}: {product: ProductWithExtraData}) {
   return (
     <Link href={`${PATHS.global.products.link}/${product.slug}`} className={cn('p-5 xl:p-4', 'flex flex-col items-center gap-2', 'bg-gray', 'group')}>
-      <div className="py-10 xl:py-8 sm:py-6">
-        <Image className={cn('rotate-45', 'size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`pickmy | ${product.name} – ${product.caption}`} />
-      </div>
+      <div className="py-10 xl:py-8 sm:py-6">{product.imageUrl ? <Image className={cn('size-36 xl:size-32 sm:size-28 object-cover rounded-lg', 'group-hover:scale-[1.1] duration-500')} src={product.imageUrl} alt={`pickmy | ${product.name} – ${product.caption}`} width={144} height={144} /> : <Image className={cn('rotate-45', 'size-36 xl:size-32 sm:size-28 object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`pickmy | ${product.name} – ${product.caption}`} />}</div>
 
       <div className="text-center">
         <H3>{product.name}</H3>

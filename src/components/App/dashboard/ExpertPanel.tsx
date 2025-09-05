@@ -48,11 +48,15 @@ export default function ExpertPanel() {
       _id: product._id,
       _creationTime: product._creationTime,
       name: product.name,
-      caption: product.caption,
-      featured: product.featured,
-      slug: product.slug,
-      expert: product.expertData._id,
       category: product.categoryData._id,
+      categoryName: product.categoryData.name,
+      caption: product.caption,
+      expert: product.expertData._id,
+      slug: product.slug,
+      featured: product.featured,
+      price: product.price,
+      image: product.image,
+      imageUrl: product.imageUrl,
     })) || []
 
   const handleViewProduct = (product: Table<'products'>) => {
@@ -174,32 +178,17 @@ export default function ExpertPanel() {
                     </Badge>
                   </Link>
                 </div>
-
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Статус</label>
-                  <div className="flex gap-2">
-                    {expert.featured && <Badge variant="secondary">Рекомендуемый</Badge>}
-                    <Badge variant={expert.isActive ? 'default' : 'destructive'}>{expert.isActive ? 'Активный' : 'Неактивный'}</Badge>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">ID</label>
-                  <Badge variant="default" className="block font-mono">
-                    {expert._id.slice(-10)}
-                  </Badge>
-                </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="products" className="space-y-4">
-          {expertProducts && <DataTable data={productsForTable} entityType="products" onView={handleViewProduct} onEdit={handleEditProduct} onDelete={handleDeleteProduct} onCreate={handleCreateProduct} />}
+          {expertProducts && <DataTable data={productsForTable} entityType="products" onView={handleViewProduct} onEdit={handleEditProduct} onDelete={handleDeleteProduct} onCreate={handleCreateProduct} isExpertMode={true} />}
         </TabsContent>
       </Tabs>
 
-      <EntityModal isOpen={modalState.isOpen} onClose={handleCloseModal} entityType={modalState.entityType} mode={modalState.mode} data={modalState.data} onSuccess={handleModalSuccess} isExpertMode={true} />
+      <EntityModal isOpen={modalState.isOpen} onClose={handleCloseModal} entityType={modalState.entityType} mode={modalState.mode} data={modalState.data} onSuccess={handleModalSuccess} isExpertMode={true} currentExpertId={expert?._id} />
     </section>
   )
 }

@@ -1,6 +1,7 @@
 import StarImage from '$/index/star.svg'
 
 import type {Metadata} from 'next'
+import {PATHS} from '@/lib/constants'
 
 import {preloadQuery, preloadedQueryResult} from 'convex/nextjs'
 import {api} from '@convex/_generated/api'
@@ -12,8 +13,7 @@ import {notFound} from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import Container from '~/Global/Container'
-import {H2, P, SPAN} from '~/UI/Typography'
-import {PATHS} from '@/lib/constants'
+import {H2, H3, P, SPAN} from '~/UI/Typography'
 import Button from '@/components/UI/Button'
 
 type ParamsProps = {
@@ -46,7 +46,11 @@ export default async function ProductsItemPage({params}: ParamsProps) {
     <Container spacing="small">
       <div className="grid grid-cols-5 sm:grid-cols-1 gap-20 xl:gap-12 sm:gap-4">
         <div className={cn('col-span-2 sm:col-span-1', 'py-14 sm:py-8 grid place-items-center', 'group bg-gray')}>
-          <Image className={cn('rotate-45', 'size-[15vw] xl:size-[20vw] sm:size-[52vw] object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`pickmy | ${product.name} – ${product.caption}`} />
+          {product.imageUrl ? (
+            <Image className={cn('size-[15vw] xl:size-[20vw] sm:size-[52vw] object-cover rounded-lg', 'group-hover:scale-[1.05] duration-500')} src={product.imageUrl} alt={`pickmy | ${product.name} – ${product.caption}`} width={1000} height={1000} /> // image from covex
+          ) : (
+            <Image className={cn('rotate-45', 'size-[15vw] xl:size-[20vw] sm:size-[52vw] object-contain', 'group-hover:scale-[1.1] duration-500')} src={StarImage} alt={`pickmy | ${product.name} – ${product.caption}`} />
+          )}
         </div>
 
         <div className={cn('col-span-3 sm:col-span-1', 'flex flex-col justify-between sm:gap-8')}>
@@ -71,7 +75,14 @@ export default async function ProductsItemPage({params}: ParamsProps) {
             </Link>
           </div>
 
-          <Button variant="solid" text="Заказать" className="text-base w-full" />
+          <div className="grid grid-cols-3 sm:grid-cols-1 items-end sm:gap-4">
+            <div className={cn('col-span-1', 'space-y-0.5 sm:space-y-0', 'flex flex-col w-full')}>
+              <H3 className={cn('text-5xl xl:text-4xl sm:text-4xl', 'font-semibold')}>{Math.round(product.price)} ₽</H3>
+              <SPAN className="text-neutral-600 !leading-none text-nowrap">+ комиссия при оформлении</SPAN>
+            </div>
+
+            <Button variant="solid" className={cn('col-span-2 sm:col-span-1 justify-self-end', 'w-[90%] sm:w-full h-fit py-4 xl:py-3 sm:py-2.5', 'text-lg xl:text-base sm:text-base font-medium')} text="Заказать" />
+          </div>
         </div>
       </div>
     </Container>

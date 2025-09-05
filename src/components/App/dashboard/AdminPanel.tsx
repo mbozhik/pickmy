@@ -36,7 +36,7 @@ export default function AdminPanel() {
   })
 
   const users = useQuery(api.tables.users.getAllUsers, activeTab === 'users' ? {} : 'skip') as User[] | undefined
-  const products = useQuery(api.tables.products.getAllProducts, activeTab === 'products' ? {} : 'skip') as Product[] | undefined
+  const products = useQuery(api.tables.products.getAllProducts, activeTab === 'products' ? {} : 'skip')
   const categories = useQuery(api.tables.categories.getCategories, activeTab === 'categories' ? {} : 'skip') as Category[] | undefined
   const experts = useQuery(api.tables.experts.getAllExperts, activeTab === 'experts' ? {} : 'skip') as Expert[] | undefined
 
@@ -107,7 +107,22 @@ export default function AdminPanel() {
       case 'users':
         return users || []
       case 'products':
-        return products || []
+        return (
+          products?.map((product) => ({
+            _id: product._id,
+            _creationTime: product._creationTime,
+            name: product.name,
+            category: product.categoryData._id,
+            categoryName: product.categoryData.name,
+            caption: product.caption,
+            expert: product.expertData._id,
+            slug: product.slug,
+            featured: product.featured,
+            price: product.price,
+            image: product.image,
+            imageUrl: product.imageUrl,
+          })) || []
+        )
       case 'categories':
         return categories || []
       case 'experts':

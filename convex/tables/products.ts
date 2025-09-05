@@ -25,6 +25,9 @@ const productWithExtraData = v.object({
   expertData: expertData,
   slug: v.string(),
   featured: v.boolean(),
+  price: v.number(),
+  image: v.optional(v.id('_storage')),
+  imageUrl: v.optional(v.string()),
 })
 
 async function enrichProductsWithExtraData(ctx: QueryCtx, products: Table<'products'>[]) {
@@ -38,34 +41,42 @@ async function enrichProductsWithExtraData(ctx: QueryCtx, products: Table<'produ
   const expertMap = new Map(experts.filter(Boolean).map((e) => [e!._id, e!]))
 
   // Объединяем продукты с категориями и экспертами
-  return products.map((product) => {
-    const category = categoryMap.get(product.category)
-    const expert = expertMap.get(product.expert)
+  const enrichedProducts = await Promise.all(
+    products.map(async (product) => {
+      const category = categoryMap.get(product.category)
+      const expert = expertMap.get(product.expert)
 
-    if (!category) {
-      throw new Error(`Category not found for product ${product.name}`)
-    }
-    if (!expert) {
-      throw new Error(`Expert not found for product ${product.name}`)
-    }
+      if (!category) {
+        throw new Error(`Category not found for product ${product.name}`)
+      }
+      if (!expert) {
+        throw new Error(`Expert not found for product ${product.name}`)
+      }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const {category: _, expert: __, ...productWithoutRefs} = product
-    return {
-      ...productWithoutRefs,
-      categoryData: {
-        _id: category._id,
-        name: category.name,
-        slug: category.slug,
-      },
-      expertData: {
-        _id: expert._id,
-        name: expert.name,
-        role: expert.role,
-        username: expert.username,
-      },
-    }
-  })
+      // Получаем URL изображения если оно есть
+      const imageUrl = product.image ? await ctx.storage.getUrl(product.image) : undefined
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const {category: _, expert: __, ...productWithoutRefs} = product
+      return {
+        ...productWithoutRefs,
+        categoryData: {
+          _id: category._id,
+          name: category.name,
+          slug: category.slug,
+        },
+        expertData: {
+          _id: expert._id,
+          name: expert.name,
+          role: expert.role,
+          username: expert.username,
+        },
+        imageUrl: imageUrl || undefined,
+      }
+    }),
+  )
+
+  return enrichedProducts
 }
 
 export const createProduct = mutation({
@@ -76,6 +87,8 @@ export const createProduct = mutation({
     expert: v.id('experts'),
     slug: v.string(),
     featured: v.boolean(),
+    price: v.number(),
+    image: v.optional(v.id('_storage')),
   },
   handler: async (ctx, args) => {
     const product = await ctx.db.insert('products', {
@@ -85,6 +98,8 @@ export const createProduct = mutation({
       expert: args.expert,
       slug: args.slug,
       featured: args.featured,
+      price: args.price,
+      image: args.image,
     })
     return product
   },
@@ -101,7 +116,8 @@ export const getProducts = query({
 export const getAllProducts = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query('products').collect()
+    const products = await ctx.db.query('products').collect()
+    return await enrichProductsWithExtraData(ctx, products)
   },
 })
 
@@ -114,11 +130,20 @@ export const updateProduct = mutation({
     category: v.id('categories'),
     expert: v.id('experts'),
     featured: v.boolean(),
+    price: v.number(),
+    image: v.optional(v.id('_storage')),
   },
   handler: async (ctx, args) => {
     const {id, ...updates} = args
     await ctx.db.patch(id, updates)
     return id
+  },
+})
+
+export const generateUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl()
   },
 })
 
