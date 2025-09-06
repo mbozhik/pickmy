@@ -174,7 +174,7 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
             const roleLabels = {
               user: 'Пользователь',
               expert: 'Эксперт',
-              admin: 'Админратор',
+              admin: 'Администратор',
             }
             return (
               <Badge variant="secondary" className="text-xs">

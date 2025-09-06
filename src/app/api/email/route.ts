@@ -8,7 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 const EMAIL_LIST = {
   from: 'info@pickmy.ru',
-  to: 'bozzhik@ya.ru',
+  to: 'bhf2311@gmail.com',
 }
 
 type EmailRequest = {
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     }
 
     const {data: emailData, error: emailError} = await resend.emails.send({
-      from: `PICKMY | <${EMAIL_LIST.from}>`,
+      from: `PICKMY <${EMAIL_LIST.from}>`,
       to: EMAIL_LIST.to,
       subject: emailConfig.subject,
       react: emailConfig.react,
