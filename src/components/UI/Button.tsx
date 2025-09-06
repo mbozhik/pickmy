@@ -3,7 +3,7 @@ import {cn} from '@/lib/utils'
 import Link from 'next/link'
 
 type Props = {
-  variant: 'solid' | 'outline'
+  variant: 'solid' | 'muted' | 'outline'
 
   text?: string
   children?: React.ReactNode
@@ -22,6 +22,7 @@ export const BUTTON_STYLES = {
 
   button: {
     solid: cn('text-background', 'border-foreground', 'bg-foreground', 'hover:bg-foreground/75'),
+    muted: cn('text-foreground', 'border-neutral-200', 'bg-neutral-200', 'hover:bg-neutral-300'),
     outline: cn('text-background', 'border-background/50', 'bg-background/15 backdrop-blur-[2px] sm:backdrop-blur-[4px]', 'hover:bg-background/25 hover:border-background/60'),
   },
 } as const

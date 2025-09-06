@@ -97,3 +97,9 @@ Fill the table with `seeds` (replace)
 ```zsh
 bunx convex import --table experts convex/seeds/experts.jsonl --replace
 ```
+
+Fill the table with `seeds` (append)
+
+```zsh
+bunx convex import --table orders --append convex/seeds/orders.jsonl
+```

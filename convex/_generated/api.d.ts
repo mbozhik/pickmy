@@ -16,6 +16,7 @@ import type {
 import type * as http from "../http.js";
 import type * as tables_categories from "../tables/categories.js";
 import type * as tables_experts from "../tables/experts.js";
+import type * as tables_orders from "../tables/orders.js";
 import type * as tables_products from "../tables/products.js";
 import type * as tables_users from "../tables/users.js";
 
@@ -31,6 +32,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "tables/categories": typeof tables_categories;
   "tables/experts": typeof tables_experts;
+  "tables/orders": typeof tables_orders;
   "tables/products": typeof tables_products;
   "tables/users": typeof tables_users;
 }>;

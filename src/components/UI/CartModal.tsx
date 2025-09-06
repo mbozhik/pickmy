@@ -3,20 +3,21 @@
 import {Plus, Minus, Trash2, ShoppingCart, ArrowLeft} from 'lucide-react'
 
 import {api} from '@convex/_generated/api'
-import {useQuery} from 'convex/react'
-
-import {useState, useEffect} from 'react'
-import {useForm} from 'react-hook-form'
-import {zodResolver} from '@hookform/resolvers/zod'
-import {z} from 'zod'
+import {useQuery, useMutation} from 'convex/react'
 
 import {useCartStore} from '@/stores/cart-store'
 import {useCustomerStore} from '@/stores/customer-store'
 import {calculatePricing, formatPrice} from '@/lib/pricing'
 import {generateOrderToken} from '@/lib/order-token'
 
+import {useState, useEffect} from 'react'
+import {useForm} from 'react-hook-form'
+import {zodResolver} from '@hookform/resolvers/zod'
+import {z} from 'zod'
+import {toast} from 'sonner'
+
 import Image from 'next/image'
-import {Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle} from '~/Core/dialog'
+import {Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription} from '~/Core/dialog'
 import {Button} from '~/Core/button'
 import {Input} from '~/Core/input'
 import {Textarea} from '~/Core/textarea'
@@ -37,13 +38,14 @@ type CheckoutStep = 'cart' | 'checkout'
 
 export default function CartModal({isOpen, onClose}: {isOpen: boolean; onClose: () => void}) {
   const convexUser = useQuery(api.tables.users.current)
-
-  const {cart, updateQuantity, removeItem, clearCart} = useCartStore()
-  const {customerInfo, setCustomerInfo} = useCustomerStore()
+  const createOrder = useMutation(api.tables.orders.createOrder)
 
   const [step, setStep] = useState<CheckoutStep>('cart')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [orderToken] = useState(generateOrderToken)
+
+  const {cart, updateQuantity, removeItem, clearCart} = useCartStore()
+  const {customerInfo, setCustomerInfo} = useCustomerStore()
 
   const form = useForm<CustomerFormData>({
     resolver: zodResolver(customerFormSchema),
@@ -88,32 +90,53 @@ export default function CartModal({isOpen, onClose}: {isOpen: boolean; onClose: 
 
     setIsSubmitting(true)
 
-    // Сохраняем данные клиента в local storage (zustand)
-    setCustomerInfo({
-      name: data.name,
-      email: data.email,
-      contact: data.contact || '',
-      address: data.address || '',
-      comment: data.comment || '',
-    })
+    try {
+      // Сохраняем данные клиента в local storage (zustand)
+      setCustomerInfo({
+        name: data.name,
+        email: data.email,
+        contact: data.contact || '',
+        address: data.address || '',
+        comment: data.comment || '',
+      })
 
-    // TODO: Отправка заказа в Convex
-    console.log('Оформление заказа:', {
-      userId: convexUser._id, // ID пользователя из Convex
-      orderToken,
-      customerInfo: data,
-      cart: cart.items,
-      pricing: pricing,
-      timestamp: new Date().toISOString(),
-    })
+      // Отправляем заказ в Convex
+      const orderId = await createOrder({
+        orderToken,
+        items: cart.items.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          expertUsername: item.expertUsername,
+          imageUrl: item.imageUrl,
+        })),
+        customerInfo: {
+          name: data.name,
+          email: data.email,
+          contact: data.contact,
+          address: data.address,
+          comment: data.comment,
+        },
+        pricing: pricing,
+      })
 
-    // Имитация отправки
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+      console.log('Заказ успешно создан:', orderId)
 
-    setIsSubmitting(false)
-    // После успешной отправки можно очистить корзину и закрыть модалку
-    // clearCart()
-    // onClose()
+      toast.success('Заказ успешно создан!', {
+        duration: 3000,
+      })
+
+      clearCart()
+      onClose()
+    } catch (error) {
+      console.error('Ошибка при создании заказа:', error)
+      toast.error('Ошибка при создании заказа. Попробуйте еще раз.', {
+        duration: 3000,
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // if (cart.items.length > 0) {
@@ -132,6 +155,7 @@ export default function CartModal({isOpen, onClose}: {isOpen: boolean; onClose: 
             )}
             {step === 'cart' ? 'Корзина' : 'Оформление заказа'}
           </DialogTitle>
+          <DialogDescription className="sr-only">{step === 'cart' ? 'Управление товарами в корзине' : 'Форма оформления заказа'}</DialogDescription>
         </DialogHeader>
 
         {step === 'cart' ? (

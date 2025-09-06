@@ -8,7 +8,7 @@ import {cn} from '@/lib/utils'
 export default function CartButton({className, onClick}: {className?: string; onClick?: () => void}) {
   const {totalItems, isLoaded} = useCartStore()
 
-  console.log('CartButton render:', {totalItems, isLoaded})
+  // console.log('CartButton render:', {totalItems, isLoaded})
 
   if (!isLoaded || totalItems === 0) {
     return null

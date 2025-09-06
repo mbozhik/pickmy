@@ -41,4 +41,71 @@ export default defineSchema({
     .index('by_featured', ['featured'])
     .index('by_username', ['username'])
     .index('by_userId', ['userId']),
+
+  orders: defineTable({
+    orderToken: v.string(),
+    userId: v.id('users'),
+
+    // Список товаров в заказе
+    items: v.array(
+      v.object({
+        productId: v.string(),
+        name: v.string(),
+        price: v.number(),
+        quantity: v.number(),
+        expertUsername: v.string(),
+        imageUrl: v.optional(v.string()),
+      }),
+    ),
+
+    // Информация о клиенте
+    customerInfo: v.object({
+      name: v.string(),
+      email: v.string(),
+      contact: v.optional(v.string()),
+      address: v.optional(v.string()),
+      comment: v.optional(v.string()),
+    }),
+
+    // Стоимость заказа
+    pricing: v.object({
+      basePrice: v.number(), // Сумма товаров
+      expertCommission: v.number(), // Общая комиссия экспертов
+      deliveryFee: v.number(), // Стоимость доставки
+      finalPrice: v.number(), // Итоговая сумма
+      calculatedAt: v.number(), // Timestamp расчета
+      expertCommissions: v.record(v.string(), v.number()), // Комиссия по каждому эксперту
+      itemCommissions: v.array(
+        v.object({
+          productId: v.string(),
+          itemTotal: v.number(),
+          commission: v.number(),
+        }),
+      ), // Детализация комиссий по товарам
+    }),
+
+    // Информация об оплате
+    paymentStatus: v.union(
+      v.literal('pending'), // Ожидает оплаты
+      v.literal('paid'), // Оплачен
+      v.literal('failed'), // Ошибка оплаты
+      v.literal('refunded'), // Возврат
+    ),
+
+    // Статус заказа
+    status: v.union(
+      v.literal('pending'), // Ожидает подтверждения
+      v.literal('confirmed'), // Подтвержден
+      v.literal('processing'), // В обработке
+      v.literal('shipped'), // Отправлен
+      v.literal('delivered'), // Доставлен
+      v.literal('cancelled'), // Отменен
+    ),
+
+    // Заметки администратора
+    notes: v.optional(v.string()),
+  })
+    .index('by_user', ['userId'])
+    .index('by_token', ['orderToken'])
+    .index('by_status', ['status']),
 })
