@@ -42,7 +42,7 @@ export default function CartModal({isOpen, onClose}: {isOpen: boolean; onClose: 
 
   const [step, setStep] = useState<CheckoutStep>('cart')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [orderToken] = useState(generateOrderToken)
+  const [orderToken, setOrderToken] = useState(generateOrderToken)
 
   const {cart, updateQuantity, removeItem, clearCart} = useCartStore()
   const {customerInfo, setCustomerInfo} = useCustomerStore()
@@ -62,6 +62,8 @@ export default function CartModal({isOpen, onClose}: {isOpen: boolean; onClose: 
 
   useEffect(() => {
     if (isOpen) {
+      setOrderToken(generateOrderToken())
+
       const userEmail = convexUser?.email || ''
 
       form.reset({
@@ -123,9 +125,51 @@ export default function CartModal({isOpen, onClose}: {isOpen: boolean; onClose: 
 
       console.log('Заказ успешно создан:', orderId)
 
+      // Отправляем email уведомление
+      try {
+        const emailResponse = await fetch('/api/email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            template: 'cart',
+            data: {
+              orderToken,
+              items: cart.items.map((item) => ({
+                productId: item.productId,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                expertUsername: item.expertUsername,
+                imageUrl: item.imageUrl,
+              })),
+              customerInfo: {
+                name: data.name,
+                email: data.email,
+                contact: data.contact,
+                address: data.address,
+                comment: data.comment,
+              },
+              pricing: pricing,
+            },
+          }),
+        })
+
+        if (!emailResponse.ok) {
+          console.error('Ошибка при отправке email:', await emailResponse.text())
+        } else {
+          console.log('Email уведомление отправлено успешно')
+        }
+      } catch (emailError) {
+        console.error('Ошибка при отправке email:', emailError)
+      }
+
       toast.success('Заказ успешно создан!', {
         duration: 3000,
       })
+
+      setOrderToken(generateOrderToken())
 
       clearCart()
       onClose()

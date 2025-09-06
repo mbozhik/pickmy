@@ -14,9 +14,10 @@ import CartModal from '~/UI/CartModal'
 import type {ProductWithExtraData} from '~/UI/Grid'
 
 export default function ProductActions({product}: {product: ProductWithExtraData}) {
-  const {addItem} = useCartStore()
-  const [isAddedToCart, setIsAddedToCart] = useState(false)
+  const {addItem, cart} = useCartStore()
   const [isCartOpen, setIsCartOpen] = useState(false)
+
+  const isInCart = cart.items.some((item) => item.productId === product._id)
 
   const handleAddToCart = () => {
     addItem({
@@ -28,8 +29,6 @@ export default function ProductActions({product}: {product: ProductWithExtraData
       imageUrl: product.imageUrl,
       slug: product.slug,
     })
-
-    setIsAddedToCart(true)
 
     toast.success(`${product.name} добавлен в корзину`, {
       duration: 3000,
@@ -49,7 +48,7 @@ export default function ProductActions({product}: {product: ProductWithExtraData
         <SPAN className="text-neutral-600 !leading-none text-nowrap">+ комиссия при оформлении</SPAN>
       </div>
 
-      {!isAddedToCart ? (
+      {!isInCart ? (
         <Button variant="solid" className={cn('col-span-2 sm:col-span-1 justify-self-end', 'w-[90%] sm:w-full h-fit py-4 xl:py-3 sm:py-2.5', 'text-lg xl:text-base sm:text-sm font-medium')} text="Добавить в корзину" onClick={handleAddToCart} />
       ) : (
         <div className="col-span-2 sm:col-span-1 justify-self-end w-[90%] sm:w-full grid grid-cols-2 gap-2">
