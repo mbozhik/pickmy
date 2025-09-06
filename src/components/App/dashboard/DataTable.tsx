@@ -13,6 +13,25 @@ import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, A
 import {Table as TableElement, TableBody, TableCell, TableHead, TableHeader, TableRow} from '~/core/table'
 import {Toggle} from '~/core/toggle'
 
+const BADGE_COLORS = {
+  // Статусы заказов
+  orderStatus: {
+    pending: {bg: 'bg-[#fef9c3]', text: 'text-[#854d0e]'}, // Ожидает - яркий жёлтый
+    confirmed: {bg: 'bg-[#fff4e6]', text: 'text-[#ea580c]'}, // Подтверждён - мягкий оранжевый
+    processing: {bg: 'bg-[#f3e8ff]', text: 'text-[#9333ea]'}, // Обрабатывается - фиолетовый
+    shipped: {bg: 'bg-[#e0f2fe]', text: 'text-[#0369a1]'}, // Отправлен - голубой
+    delivered: {bg: 'bg-[#dcfce7]', text: 'text-[#166534]'}, // Доставлен - зелёный
+    cancelled: {bg: 'bg-[#fef2f2]', text: 'text-[#dc2626]'}, // Отменён - красный
+  },
+  // Статусы оплаты
+  paymentStatus: {
+    pending: {bg: 'bg-[#fef9c3]', text: 'text-[#854d0e]'}, // Ожидает - яркий жёлтый
+    paid: {bg: 'bg-[#dcfce7]', text: 'text-[#166534]'}, // Оплачен - зелёный
+    failed: {bg: 'bg-[#fef2f2]', text: 'text-[#dc2626]'}, // Ошибка - красный
+    refunded: {bg: 'bg-[#f8fafc]', text: 'text-[#475569]'}, // Возврат - серый
+  },
+} as const
+
 interface DataTableProps<T extends AdminTableData> {
   data: T[]
   entityType: AdminTableTabs
@@ -41,6 +60,76 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
   ]
 
   switch (entityType) {
+    case 'orders':
+      baseColumns.push(
+        {
+          accessorKey: 'orderToken',
+          header: 'Токен заказа',
+          cell: ({row}) => (
+            <Badge variant="secondary" className="font-mono text-xs">
+              {truncateId(row.getValue('orderToken'), 8)}
+            </Badge>
+          ),
+        },
+        {
+          accessorKey: 'customerInfo',
+          header: 'Покупатель',
+          cell: ({row}) => {
+            const customerInfo = row.getValue('customerInfo') as {name: string; email: string}
+            return <div>{customerInfo?.name || 'Не указано'}</div>
+          },
+        },
+        {
+          accessorKey: 'pricing',
+          header: 'Сумма',
+          cell: ({row}) => {
+            const pricing = row.getValue('pricing') as {finalPrice: number}
+            return <div>{pricing?.finalPrice || 0} ₽</div>
+          },
+        },
+        {
+          accessorKey: 'status',
+          header: 'Статус',
+          cell: ({row}) => {
+            const status = row.getValue('status') as string
+            const statusLabels = {
+              pending: 'Ожидает',
+              confirmed: 'Подтверждён',
+              processing: 'Обрабатывается',
+              shipped: 'Отправлен',
+              delivered: 'Доставлен',
+              cancelled: 'Отменён',
+            }
+            const colors = BADGE_COLORS.orderStatus[status as keyof typeof BADGE_COLORS.orderStatus] || {bg: 'bg-[#f8fafc]', text: 'text-[#475569]'}
+            return (
+              <Badge variant="secondary" className={`text-xs font-normal ${colors.bg} ${colors.text}`}>
+                {statusLabels[status as keyof typeof statusLabels] || status}
+              </Badge>
+            )
+          },
+        },
+        {
+          accessorKey: 'paymentStatus',
+          header: 'Оплата',
+          cell: ({row}) => {
+            const paymentStatus = row.getValue('paymentStatus') as string
+            const paymentLabels = {
+              pending: 'Ожидает оплаты',
+              paid: 'Оплачен',
+              failed: 'Ошибка',
+              refunded: 'Возврат',
+            }
+            const colors = BADGE_COLORS.paymentStatus[paymentStatus as keyof typeof BADGE_COLORS.paymentStatus] || {bg: 'bg-[#f8fafc]', text: 'text-[#475569]'}
+            return (
+              <Badge variant="secondary" className={`text-xs font-normal ${colors.bg} ${colors.text}`}>
+                {paymentLabels[paymentStatus as keyof typeof paymentLabels] || paymentStatus}
+              </Badge>
+            )
+          },
+        },
+      )
+      break
+
     case 'users':
       baseColumns.push(
         {
@@ -263,6 +352,13 @@ export default function DataTable<T extends AdminTableData>({data, entityType, o
 
   const getEntityLabel = (type: AdminTableTabs, action: 'view' | 'edit') => {
     switch (type) {
+      case 'orders':
+        switch (action) {
+          case 'view':
+            return 'Заказы'
+          case 'edit':
+            return 'Заказ'
+        }
       case 'users':
         switch (action) {
           case 'view':

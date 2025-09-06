@@ -126,10 +126,14 @@ export const updateOrderStatus = mutation({
   args: {
     orderId: v.id('orders'),
     status: v.union(v.literal('pending'), v.literal('confirmed'), v.literal('processing'), v.literal('shipped'), v.literal('delivered'), v.literal('cancelled')),
+    paymentStatus: v.optional(v.union(v.literal('pending'), v.literal('paid'), v.literal('failed'), v.literal('refunded'))),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const updates: {status: OrderStatus; notes?: string} = {status: args.status}
+    const updates: {status: OrderStatus; paymentStatus?: PaymentStatus; notes?: string} = {status: args.status}
+    if (args.paymentStatus !== undefined) {
+      updates.paymentStatus = args.paymentStatus
+    }
     if (args.notes !== undefined) {
       updates.notes = args.notes
     }

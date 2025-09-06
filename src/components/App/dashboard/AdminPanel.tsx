@@ -17,13 +17,14 @@ export type User = Table<'users'>
 export type Product = Table<'products'>
 export type Category = Table<'categories'>
 export type Expert = Table<'experts'>
+export type Order = Table<'orders'>
 
-export type AdminTableData = Table<'users'> | Table<'products'> | Table<'categories'> | Table<'experts'>
+export type AdminTableData = Table<'users'> | Table<'products'> | Table<'categories'> | Table<'experts'> | Table<'orders'>
 
-export type AdminTableTabs = 'experts' | 'products' | 'categories' | 'users'
+export type AdminTableTabs = 'orders' | 'experts' | 'products' | 'categories' | 'users'
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<AdminTableTabs>('experts')
+  const [activeTab, setActiveTab] = useState<AdminTableTabs>('orders')
   const [modalState, setModalState] = useState<{
     isOpen: boolean
     mode: ModalMode
@@ -32,13 +33,14 @@ export default function AdminPanel() {
   }>({
     isOpen: false,
     mode: 'create',
-    entityType: 'experts',
+    entityType: 'orders',
   })
 
   const users = useQuery(api.tables.users.getAllUsers, activeTab === 'users' ? {} : 'skip') as User[] | undefined
   const products = useQuery(api.tables.products.getAllProducts, activeTab === 'products' ? {} : 'skip')
   const categories = useQuery(api.tables.categories.getCategories, activeTab === 'categories' ? {} : 'skip') as Category[] | undefined
   const experts = useQuery(api.tables.experts.getAllExperts, activeTab === 'experts' ? {} : 'skip') as Expert[] | undefined
+  const orders = useQuery(api.tables.orders.getAllOrders, activeTab === 'orders' ? {} : 'skip') as Order[] | undefined
 
   const deleteUser = useMutation(api.tables.users.deleteUser)
   const deleteProduct = useMutation(api.tables.products.deleteProduct)
@@ -54,7 +56,7 @@ export default function AdminPanel() {
     })
   }
 
-  const handleEdit = (item: Expert | Product | Category | User) => {
+  const handleEdit = (item: AdminTableData) => {
     setModalState({
       isOpen: true,
       mode: 'edit',
@@ -66,6 +68,10 @@ export default function AdminPanel() {
   const handleDelete = async (id: string) => {
     try {
       switch (activeTab) {
+        case 'orders':
+          // Orders обычно не удаляют, но можно добавить функцию если нужно
+          toast.error('Удаление заказов не разрешено')
+          return
         case 'users':
           await deleteUser({id: id as Id<'users'>})
           break
@@ -87,6 +93,11 @@ export default function AdminPanel() {
   }
 
   const handleCreate = () => {
+    if (activeTab === 'orders') {
+      toast.error('Заказы создаются только через корзину')
+      return
+    }
+
     setModalState({
       isOpen: true,
       mode: 'create',
@@ -104,6 +115,8 @@ export default function AdminPanel() {
 
   const getCurrentData = () => {
     switch (activeTab) {
+      case 'orders':
+        return orders || []
       case 'users':
         return users || []
       case 'products':
@@ -133,27 +146,32 @@ export default function AdminPanel() {
   return (
     <section data-section="admin-panel" className="space-y-6">
       <Tabs className="space-y-6" value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
-        <TabsList className="w-full sm:h-auto grid grid-cols-4 sm:grid-cols-2 sm:gap-x-2 sm:gap-y-2.5">
+        <TabsList className="w-full sm:h-auto grid grid-cols-5 sm:grid-cols-2 sm:gap-x-2 sm:gap-y-2.5">
+          <TabsTrigger value="orders">Заказы</TabsTrigger>
           <TabsTrigger value="experts">Эксперты</TabsTrigger>
           <TabsTrigger value="products">Продукты</TabsTrigger>
           <TabsTrigger value="categories">Категории</TabsTrigger>
           <TabsTrigger value="users">Пользователи</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="orders">
+          <DataTable data={(getCurrentData() || []) as AdminTableData[]} entityType="orders" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
+        </TabsContent>
+
         <TabsContent value="experts">
-          <DataTable data={getCurrentData()} entityType="experts" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
+          <DataTable data={(getCurrentData() || []) as AdminTableData[]} entityType="experts" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
         </TabsContent>
 
         <TabsContent value="products">
-          <DataTable data={getCurrentData()} entityType="products" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
+          <DataTable data={(getCurrentData() || []) as AdminTableData[]} entityType="products" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
         </TabsContent>
 
         <TabsContent value="categories">
-          <DataTable data={getCurrentData()} entityType="categories" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
+          <DataTable data={(getCurrentData() || []) as AdminTableData[]} entityType="categories" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
         </TabsContent>
 
         <TabsContent value="users">
-          <DataTable data={getCurrentData()} entityType="users" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
+          <DataTable data={(getCurrentData() || []) as AdminTableData[]} entityType="users" onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onCreate={handleCreate} />
         </TabsContent>
       </Tabs>
 

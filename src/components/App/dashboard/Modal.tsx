@@ -1,6 +1,6 @@
 'use client'
 
-import type {Id} from '@convex/_generated/dataModel'
+import type {Id, Doc as Table} from '@convex/_generated/dataModel'
 import type {AdminTableData, AdminTableTabs} from '~~/dashboard/AdminPanel'
 import {api} from '@convex/_generated/api'
 
@@ -70,12 +70,20 @@ const expertSelfEditSchema = z.object({
   link: z.url('Некорректная ссылка').min(1, 'Ссылка обязательна'),
 })
 
+const orderSchema = z.object({
+  orderToken: z.string().min(1, 'Токен заказа обязателен'),
+  status: z.enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']),
+  paymentStatus: z.enum(['pending', 'paid', 'failed', 'refunded']),
+  notes: z.string().optional(),
+})
+
 type UserFormValues = z.infer<typeof userSchema>
 type ProductFormValues = z.infer<typeof productSchema>
 type CategoryFormValues = z.infer<typeof categorySchema>
 type ExpertFormValues = z.infer<typeof expertSchema>
+type OrderFormValues = z.infer<typeof orderSchema>
 
-type FormValues = UserFormValues | ProductFormValues | CategoryFormValues | ExpertFormValues
+type FormValues = UserFormValues | ProductFormValues | CategoryFormValues | ExpertFormValues | OrderFormValues
 
 interface ModalProps {
   isOpen: boolean
@@ -106,9 +114,12 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
   const createExpert = useMutation(api.tables.experts.createExpert)
   const updateExpert = useMutation(api.tables.experts.updateExpert)
   const updateUser = useMutation(api.tables.users.updateUser)
+  const updateOrderStatus = useMutation(api.tables.orders.updateOrderStatus)
 
   const getSchema = () => {
     switch (entityType) {
+      case 'orders':
+        return orderSchema
       case 'users':
         return userSchema
       case 'products':
@@ -122,6 +133,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
 
   const getDefaultValues = () => {
     const defaults = {
+      orders: {orderToken: '', status: 'pending' as const, paymentStatus: 'pending' as const, notes: ''},
       users: {email: '', role: 'user' as const},
       products: {
         name: '',
@@ -261,6 +273,9 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
           case 'users':
             toast.error('Создание пользователей доступно только через Clerk')
             return
+          case 'orders':
+            toast.error('Заказы создаются только через корзину')
+            return
         }
         toast.success(`${getEntityName(entityType)} успешно создан${getEntityGender(entityType)}`)
       } else if (mode === 'edit' && data?._id) {
@@ -335,6 +350,16 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
             })
             break
           }
+          case 'orders': {
+            const orderValues = values as OrderFormValues
+            await updateOrderStatus({
+              orderId: data._id as Id<'orders'>,
+              status: orderValues.status,
+              paymentStatus: orderValues.paymentStatus,
+              notes: orderValues.notes,
+            })
+            break
+          }
         }
         toast.success(`${getEntityName(entityType)} успешно обновлен${getEntityGender(entityType)}`)
       }
@@ -360,6 +385,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
 
   const getTitle = () => {
     const titles = {
+      orders: {create: 'Создать заказ', edit: 'Редактировать заказ', view: 'Просмотр заказа'},
       users: {create: 'Создать пользователя', edit: 'Редактировать пользователя', view: 'Просмотр пользователя'},
       products: {create: 'Создать продукт', edit: 'Редактировать продукт', view: 'Просмотр продукта'},
       categories: {create: 'Создать категорию', edit: 'Редактировать категорию', view: 'Просмотр категории'},
@@ -372,6 +398,202 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
     const isReadonly = mode === 'view'
 
     switch (entityType) {
+      case 'orders':
+        return (
+          <>
+            <FormField
+              control={form.control}
+              name="orderToken"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Токен заказа</FormLabel>
+                  <FormControl>
+                    <Input disabled={true} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Статус заказа</FormLabel>
+                  <Select disabled={isReadonly} onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Выберите статус" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="pending">Ожидает</SelectItem>
+                      <SelectItem value="confirmed">Подтверждён</SelectItem>
+                      <SelectItem value="processing">Обрабатывается</SelectItem>
+                      <SelectItem value="shipped">Отправлен</SelectItem>
+                      <SelectItem value="delivered">Доставлен</SelectItem>
+                      <SelectItem value="cancelled">Отменён</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="paymentStatus"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Статус оплаты</FormLabel>
+                  <Select disabled={isReadonly} onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Выберите статус оплаты" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="pending">Ожидает оплаты</SelectItem>
+                      <SelectItem value="paid">Оплачен</SelectItem>
+                      <SelectItem value="failed">Ошибка</SelectItem>
+                      <SelectItem value="refunded">Возврат</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Заметки</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Заметки по заказу..." disabled={isReadonly} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {mode === 'view' && data && (
+              <div className="space-y-4 border-t border-neutral-200 pt-6 mt-6">
+                <h4 className="font-medium text-sm text-neutral-700">Системная информация</h4>
+                <div className="grid grid-cols-1 gap-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-neutral-600">ID пользователя:</span>
+                    <Badge variant="secondary" className="font-mono text-xs">
+                      {(data as Table<'orders'>).userId.slice(-6)}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-neutral-600">Создан:</span>
+                    <span className="text-neutral-800">{new Date(data._creationTime).toLocaleString('ru-RU')}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            {mode === 'view' && data && (data as Table<'orders'>).customerInfo && (
+              <div className="space-y-4 border-t border-neutral-200 pt-6">
+                <h4 className="font-medium text-sm text-neutral-700">Информация о заказчике</h4>
+                <div className="grid grid-cols-1 gap-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-neutral-600">Имя:</span>
+                    <span className="text-neutral-800 font-medium">{(data as Table<'orders'>).customerInfo.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-neutral-600">Email:</span>
+                    <span className="text-neutral-800">{(data as Table<'orders'>).customerInfo.email}</span>
+                  </div>
+                  {(data as Table<'orders'>).customerInfo.contact && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-neutral-600">Контакт:</span>
+                      <span className="text-neutral-800">{(data as Table<'orders'>).customerInfo.contact}</span>
+                    </div>
+                  )}
+                  {(data as Table<'orders'>).customerInfo.address && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-neutral-600 flex-shrink-0">Адрес:</span>
+                      <span className="text-neutral-800 text-right max-w-[200px]">{(data as Table<'orders'>).customerInfo.address}</span>
+                    </div>
+                  )}
+                  {(data as Table<'orders'>).customerInfo.comment && (
+                    <div className="flex items-start justify-between">
+                      <span className="text-neutral-600 flex-shrink-0">Комментарий:</span>
+                      <span className="text-neutral-800 text-right max-w-[200px]">{(data as Table<'orders'>).customerInfo.comment}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {mode === 'view' && data && (data as Table<'orders'>).items && (
+              <div className="space-y-4 border-t border-neutral-200 pt-6">
+                <h4 className="font-medium text-sm text-neutral-700">Товары в заказе</h4>
+                <div className="space-y-3">
+                  {(data as Table<'orders'>).items.map((item, index: number) => (
+                    <div key={index} className="bg-neutral-50 border border-neutral-200 p-4 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        {item.imageUrl && (
+                          <div className="w-14 h-14 bg-neutral-200 rounded-lg overflow-hidden flex-shrink-0">
+                            <Image src={item.imageUrl} alt={item.name} width={56} height={56} className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm text-neutral-800 mb-1">{item.name}</div>
+                          <div className="text-xs text-neutral-600 mb-1">
+                            Эксперт: <span className="text-neutral-700">{item.expertUsername}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="text-neutral-700">{item.price} ₽</span> × <span className="text-neutral-700">{item.quantity}</span> = <span className="font-medium text-neutral-800">{item.price * item.quantity} ₽</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {mode === 'view' && data && (data as Table<'orders'>).pricing && (
+              <div className="space-y-4 border-t border-neutral-200 pt-6">
+                <h4 className="font-medium text-sm text-neutral-700">Стоимость</h4>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Сумма товаров:</span>
+                    <span className="text-neutral-800">{(data as Table<'orders'>).pricing.basePrice} ₽</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Комиссия экспертов:</span>
+                    <span className="text-neutral-800">{(data as Table<'orders'>).pricing.expertCommission} ₽</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-600">Доставка:</span>
+                    <span className="text-neutral-800">{(data as Table<'orders'>).pricing.deliveryFee} ₽</span>
+                  </div>
+                  <div className="flex justify-between items-center font-medium border-t border-neutral-200 pt-3">
+                    <span className="text-neutral-700">Итого:</span>
+                    <span className="text-neutral-900 font-semibold">{(data as Table<'orders'>).pricing.finalPrice} ₽</span>
+                  </div>
+
+                  {/* Детализация комиссий экспертов */}
+                  {Object.keys((data as Table<'orders'>).pricing.expertCommissions).length > 0 && (
+                    <details className="mt-4 bg-neutral-50 border border-neutral-200 rounded-lg p-3">
+                      <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-800 font-medium">Детализация комиссий экспертов</summary>
+                      <div className="mt-3 space-y-2">
+                        {Object.entries((data as Table<'orders'>).pricing.expertCommissions).map(([expert, commission]) => (
+                          <div key={expert} className="flex justify-between text-xs">
+                            <span className="text-neutral-600">{expert}:</span>
+                            <span className="text-neutral-800">{commission} ₽</span>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+
+                  <div className="text-xs text-neutral-500 mt-4 pt-3 border-t border-neutral-200">Рассчитано: {new Date((data as Table<'orders'>).pricing.calculatedAt).toLocaleString('ru-RU')}</div>
+                </div>
+              </div>
+            )}
+          </>
+        )
       case 'users':
         return (
           <>
@@ -808,6 +1030,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
 
 function getEntityName(entityType: AdminTableTabs): string {
   const names = {
+    orders: 'Заказ',
     users: 'Пользователь',
     products: 'Продукт',
     categories: 'Категория',
@@ -818,6 +1041,7 @@ function getEntityName(entityType: AdminTableTabs): string {
 
 function getEntityGender(entityType: AdminTableTabs): string {
   const genders = {
+    orders: '',
     users: '',
     products: '',
     categories: 'а',
