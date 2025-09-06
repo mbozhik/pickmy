@@ -17,11 +17,14 @@ import {SignInButton, SignOutButton, UserButton} from '@clerk/nextjs'
 
 import Link from 'next/link'
 import {H3, P} from '~/UI/Typography'
+import CartButton from '~/UI/CartButton'
+import CartModal from '~/UI/CartModal'
 
 export default function Header() {
   const {scrollY} = useScroll()
   const [isScrolled, setIsScrolled] = useState(false)
   const [lastScrollY, setLastScrollY] = useState(0)
+  const [isCartOpen, setIsCartOpen] = useState(false)
   const {isExpertOrAdmin} = useCurrentUser()
 
   const pathname = usePathname()
@@ -74,6 +77,7 @@ export default function Header() {
               <UserButton />
 
               <div className="flex gap-1.5 xl:gap-1">
+                <CartButton onClick={() => setIsCartOpen(true)} />
                 {isExpertOrAdmin && <HeaderButton to={PATHS.internal.dashboard.link}>{PATHS.internal.dashboard.label}</HeaderButton>}
 
                 <HeaderButton icon={true}>
@@ -94,6 +98,8 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   )
 }
