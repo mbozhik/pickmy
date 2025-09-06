@@ -40,15 +40,18 @@ interface DataTableProps<T extends AdminTableData> {
   onDelete: (id: string) => void
   onCreate: () => void
   isExpertMode?: boolean // flag for expert panel (limited columns)
+  isUserMode?: boolean // flag for user panel (view only)
 }
 
 const truncateId = (id: string, maxLength: number = 10) => {
   return id.length > maxLength ? `${id.substring(0, maxLength)}..` : id
 }
 
-const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onView: (item: T) => void, onEdit: (item: T) => void, onDelete: (id: string) => void, isExpertMode: boolean = false): ColumnDef<T>[] => {
-  const baseColumns: ColumnDef<T>[] = [
-    {
+const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onView: (item: T) => void, onEdit: (item: T) => void, onDelete: (id: string) => void, isExpertMode: boolean = false, isUserMode: boolean = false): ColumnDef<T>[] => {
+  const baseColumns: ColumnDef<T>[] = []
+
+  if (!isUserMode) {
+    baseColumns.push({
       accessorKey: '_id',
       header: 'ID',
       cell: ({row}) => (
@@ -56,8 +59,8 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
           {truncateId(row.getValue('_id'))}
         </Badge>
       ),
-    },
-  ]
+    })
+  }
 
   switch (entityType) {
     case 'orders':
@@ -127,6 +130,32 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
             )
           },
         },
+        {
+          accessorKey: '_creationTime',
+          header: 'Создан',
+          cell: ({row}) => {
+            const creationTime = row.getValue('_creationTime') as number
+            return (
+              <div className="text-sm text-neutral-500">
+                {isUserMode
+                  ? // Для пользователей - только дата
+                    new Date(creationTime).toLocaleDateString('ru-RU', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                    })
+                  : // Для админов - дата и время
+                    new Date(creationTime).toLocaleDateString('ru-RU', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+              </div>
+            )
+          },
+        },
       )
       break
 
@@ -145,7 +174,7 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
             const roleLabels = {
               user: 'Пользователь',
               expert: 'Эксперт',
-              admin: 'Администратор',
+              admin: 'Админратор',
             }
             return (
               <Badge variant="secondary" className="text-xs">
@@ -301,31 +330,35 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
             <span className="sr-only">Посмотреть</span>
           </Button>
 
-          <Button variant="default" size="icon" className="h-8 w-8" onClick={() => onEdit(item)}>
-            <Edit className="h-4 w-4" strokeWidth={1.7} />
-            <span className="sr-only">Изменить</span>
-          </Button>
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="icon" className="h-8 w-8">
-                <Trash2 className="h-4 w-4" strokeWidth={1.7} />
-                <span className="sr-only">Удалить</span>
+          {!isUserMode && (
+            <>
+              <Button variant="default" size="icon" className="h-8 w-8" onClick={() => onEdit(item)}>
+                <Edit className="h-4 w-4" strokeWidth={1.7} />
+                <span className="sr-only">Изменить</span>
               </Button>
-            </AlertDialogTrigger>
 
-            <AlertDialogContent className="w-[20vw] xl:w-[30vw] sm:w-[90vw]">
-              <AlertDialogHeader>
-                <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
-                <AlertDialogDescription>Это действие нельзя отменить.</AlertDialogDescription>
-              </AlertDialogHeader>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="icon" className="h-8 w-8">
+                    <Trash2 className="h-4 w-4" strokeWidth={1.7} />
+                    <span className="sr-only">Удалить</span>
+                  </Button>
+                </AlertDialogTrigger>
 
-              <AlertDialogFooter>
-                <AlertDialogCancel>Отмена</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(item._id)}>Удалить</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                <AlertDialogContent className="w-[20vw] xl:w-[30vw] sm:w-[90vw]">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Вы уверены?</AlertDialogTitle>
+                    <AlertDialogDescription>Это действие нельзя отменить.</AlertDialogDescription>
+                  </AlertDialogHeader>
+
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Отмена</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(item._id)}>Удалить</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          )}
         </div>
       )
     },
@@ -334,10 +367,10 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
   return baseColumns
 }
 
-export default function DataTable<T extends AdminTableData>({data, entityType, onView, onEdit, onDelete, onCreate, isExpertMode = false}: DataTableProps<T>) {
+export default function DataTable<T extends AdminTableData>({data, entityType, onView, onEdit, onDelete, onCreate, isExpertMode = false, isUserMode = false}: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
 
-  const columns = React.useMemo(() => createColumns(entityType, onView, onEdit, onDelete, isExpertMode), [entityType, onView, onEdit, onDelete, isExpertMode])
+  const columns = React.useMemo(() => createColumns(entityType, onView, onEdit, onDelete, isExpertMode, isUserMode), [entityType, onView, onEdit, onDelete, isExpertMode, isUserMode])
 
   const table = useReactTable({
     data,
@@ -395,11 +428,13 @@ export default function DataTable<T extends AdminTableData>({data, entityType, o
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">{getEntityLabel(entityType, 'view')}</h2>
 
-        <Button onClick={onCreate} className="gap-2 sm:text-sm sm:px-3 sm:py-2">
-          <Plus className="h-4 w-4" />
-          <span className="sm:hidden">Создать {getEntityLabel(entityType, 'edit')}</span>
-          <span className="hidden sm:inline">Создать</span>
-        </Button>
+        {!isUserMode && (
+          <Button onClick={onCreate} className="gap-2 sm:text-sm sm:px-3 sm:py-2">
+            <Plus className="h-4 w-4" />
+            <span className="sm:hidden">Создать {getEntityLabel(entityType, 'edit')}</span>
+            <span className="hidden sm:inline">Создать</span>
+          </Button>
+        )}
       </div>
 
       <div className="overflow-hidden rounded-md border border-neutral-200">

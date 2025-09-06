@@ -2,24 +2,15 @@
 
 import {useCurrentUser} from '@/utils/use-current-user'
 
-import {useRouter} from 'next/navigation'
-import {useEffect} from 'react'
-
 import Container from '~/Global/Container'
 import PageHero from '~/UI/PageHero'
 import {P} from '~/UI/Typography'
 import AdminPanel from '~~/dashboard/AdminPanel'
 import ExpertPanel from '~~/dashboard/ExpertPanel'
+import UserPanel from '~~/dashboard/UserPanel'
 
 export default function DashboardPage() {
-  const {isLoading, isExpertOrAdmin, role} = useCurrentUser()
-  const router = useRouter()
-
-  useEffect(() => {
-    if (!isLoading && !isExpertOrAdmin) {
-      router.push('/')
-    }
-  }, [isLoading, isExpertOrAdmin, router])
+  const {isLoading, role} = useCurrentUser()
 
   if (isLoading) {
     return (
@@ -31,16 +22,13 @@ export default function DashboardPage() {
     )
   }
 
-  if (!isExpertOrAdmin) {
-    return null
-  }
-
   return (
     <Container spacing="small">
       <PageHero heading="Панель управления" tagline={`${role === 'admin' ? 'Администратор' : 'Эксперт'}`} />
 
       {role === 'admin' && <AdminPanel />}
       {role === 'expert' && <ExpertPanel />}
+      {role === 'user' && <UserPanel />}
     </Container>
   )
 }

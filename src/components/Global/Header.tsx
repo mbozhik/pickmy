@@ -5,7 +5,6 @@ import {LogOut} from 'lucide-react'
 import {PATHS} from '@/lib/constants'
 import {BOX} from '~/Global/Container'
 import {BUTTON_STYLES} from '~/UI/Button'
-import {useCurrentUser} from '@/utils/use-current-user'
 
 import {cn} from '@/lib/utils'
 
@@ -22,10 +21,10 @@ import CartModal from '~/UI/CartModal'
 
 export default function Header() {
   const {scrollY} = useScroll()
+
   const [isScrolled, setIsScrolled] = useState(false)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const {isExpertOrAdmin} = useCurrentUser()
 
   const pathname = usePathname()
   const isHomePage = pathname === '/'
@@ -78,7 +77,7 @@ export default function Header() {
 
               <div className="flex gap-1.5 xl:gap-1">
                 <CartButton onClick={() => setIsCartOpen(true)} />
-                {isExpertOrAdmin && <HeaderButton to={PATHS.internal.dashboard.link}>{PATHS.internal.dashboard.label}</HeaderButton>}
+                <HeaderButton to={PATHS.internal.dashboard.link}>{PATHS.internal.dashboard.label}</HeaderButton>
 
                 <HeaderButton icon={true}>
                   <SignOutButton>

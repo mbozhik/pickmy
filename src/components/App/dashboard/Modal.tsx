@@ -94,9 +94,10 @@ interface ModalProps {
   onSuccess?: () => void
   isExpertMode?: boolean // flag for expert panel (limited set of fields)
   currentExpertId?: string // for expert mode - auto-select current expert
+  isUserMode?: boolean // flag for user panel (simplified view)
 }
 
-export default function Modal({isOpen, onClose, entityType, mode, data, onSuccess, isExpertMode = false, currentExpertId}: ModalProps) {
+export default function Modal({isOpen, onClose, entityType, mode, data, onSuccess, isExpertMode = false, currentExpertId, isUserMode = false}: ModalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -414,68 +415,104 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>Статус заказа</FormLabel>
-                  <Select disabled={isReadonly} onValueChange={field.onChange} defaultValue={field.value}>
+            {isUserMode && mode === 'view' && data ? (
+              // Упрощенное отображение статусов для пользователей
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-neutral-600">Статус заказа</label>
+                  <div className="mt-1">
+                    <Badge variant="secondary">
+                      {(data as Table<'orders'>).status === 'pending' && 'Ожидает'}
+                      {(data as Table<'orders'>).status === 'confirmed' && 'Подтверждён'}
+                      {(data as Table<'orders'>).status === 'processing' && 'Обрабатывается'}
+                      {(data as Table<'orders'>).status === 'shipped' && 'Отправлен'}
+                      {(data as Table<'orders'>).status === 'delivered' && 'Доставлен'}
+                      {(data as Table<'orders'>).status === 'cancelled' && 'Отменён'}
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-neutral-600">Статус оплаты</label>
+                  <div className="mt-1">
+                    <Badge variant="secondary">
+                      {(data as Table<'orders'>).paymentStatus === 'pending' && 'Ожидает оплаты'}
+                      {(data as Table<'orders'>).paymentStatus === 'paid' && 'Оплачен'}
+                      {(data as Table<'orders'>).paymentStatus === 'failed' && 'Ошибка'}
+                      {(data as Table<'orders'>).paymentStatus === 'refunded' && 'Возврат'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Полные селекты для админов
+              <>
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({field}) => (
+                    <FormItem>
+                      <FormLabel>Статус заказа</FormLabel>
+                      <Select disabled={isReadonly} onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите статус" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="pending">Ожидает</SelectItem>
+                          <SelectItem value="confirmed">Подтверждён</SelectItem>
+                          <SelectItem value="processing">Обрабатывается</SelectItem>
+                          <SelectItem value="shipped">Отправлен</SelectItem>
+                          <SelectItem value="delivered">Доставлен</SelectItem>
+                          <SelectItem value="cancelled">Отменён</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="paymentStatus"
+                  render={({field}) => (
+                    <FormItem>
+                      <FormLabel>Статус оплаты</FormLabel>
+                      <Select disabled={isReadonly} onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Выберите статус оплаты" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="pending">Ожидает оплаты</SelectItem>
+                          <SelectItem value="paid">Оплачен</SelectItem>
+                          <SelectItem value="failed">Ошибка</SelectItem>
+                          <SelectItem value="refunded">Возврат</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+            {mode === 'view' && data && isUserMode && <div className="text-sm text-neutral-600">Заказ создан: {new Date(data._creationTime).toLocaleDateString('ru-RU')}</div>}
+            {!isUserMode && (
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({field}) => (
+                  <FormItem>
+                    <FormLabel>Заметки</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Выберите статус" />
-                      </SelectTrigger>
+                      <Textarea placeholder="Заметки по заказу..." disabled={isReadonly} {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="pending">Ожидает</SelectItem>
-                      <SelectItem value="confirmed">Подтверждён</SelectItem>
-                      <SelectItem value="processing">Обрабатывается</SelectItem>
-                      <SelectItem value="shipped">Отправлен</SelectItem>
-                      <SelectItem value="delivered">Доставлен</SelectItem>
-                      <SelectItem value="cancelled">Отменён</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="paymentStatus"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>Статус оплаты</FormLabel>
-                  <Select disabled={isReadonly} onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Выберите статус оплаты" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="pending">Ожидает оплаты</SelectItem>
-                      <SelectItem value="paid">Оплачен</SelectItem>
-                      <SelectItem value="failed">Ошибка</SelectItem>
-                      <SelectItem value="refunded">Возврат</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>Заметки</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Заметки по заказу..." disabled={isReadonly} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {mode === 'view' && data && (
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {mode === 'view' && data && !isUserMode && (
               <div className="space-y-4 border-t border-neutral-200 pt-6 mt-6">
                 <h4 className="font-medium text-sm text-neutral-700">Системная информация</h4>
                 <div className="grid grid-cols-1 gap-3 text-sm">
@@ -486,7 +523,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-600">Создан:</span>
+                    <span className="text-neutral-600">Заказ создан:</span>
                     <span className="text-neutral-800">{new Date(data._creationTime).toLocaleString('ru-RU')}</span>
                   </div>
                 </div>
@@ -556,39 +593,50 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
               <div className="space-y-4 border-t border-neutral-200 pt-6">
                 <h4 className="font-medium text-sm text-neutral-700">Стоимость</h4>
                 <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-600">Сумма товаров:</span>
-                    <span className="text-neutral-800">{(data as Table<'orders'>).pricing.basePrice} ₽</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-600">Комиссия экспертов:</span>
-                    <span className="text-neutral-800">{(data as Table<'orders'>).pricing.expertCommission} ₽</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-neutral-600">Доставка:</span>
-                    <span className="text-neutral-800">{(data as Table<'orders'>).pricing.deliveryFee} ₽</span>
-                  </div>
-                  <div className="flex justify-between items-center font-medium border-t border-neutral-200 pt-3">
-                    <span className="text-neutral-700">Итого:</span>
-                    <span className="text-neutral-900 font-semibold">{(data as Table<'orders'>).pricing.finalPrice} ₽</span>
-                  </div>
-
-                  {/* Детализация комиссий экспертов */}
-                  {Object.keys((data as Table<'orders'>).pricing.expertCommissions).length > 0 && (
-                    <details className="mt-4 bg-neutral-50 border border-neutral-200 rounded-lg p-3">
-                      <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-800 font-medium">Детализация комиссий экспертов</summary>
-                      <div className="mt-3 space-y-2">
-                        {Object.entries((data as Table<'orders'>).pricing.expertCommissions).map(([expert, commission]) => (
-                          <div key={expert} className="flex justify-between text-xs">
-                            <span className="text-neutral-600">{expert}:</span>
-                            <span className="text-neutral-800">{commission} ₽</span>
-                          </div>
-                        ))}
+                  {isUserMode ? (
+                    // Упрощенная версия для пользователей - только итоговая стоимость
+                    <div className="flex justify-between items-center font-medium">
+                      <span className="text-neutral-700">Итого к оплате:</span>
+                      <span className="text-neutral-900 font-semibold text-lg">{(data as Table<'orders'>).pricing.finalPrice} ₽</span>
+                    </div>
+                  ) : (
+                    // Полная версия для админов
+                    <>
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-600">Сумма товаров:</span>
+                        <span className="text-neutral-800">{(data as Table<'orders'>).pricing.basePrice} ₽</span>
                       </div>
-                    </details>
-                  )}
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-600">Комиссия экспертов:</span>
+                        <span className="text-neutral-800">{(data as Table<'orders'>).pricing.expertCommission} ₽</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-600">Доставка:</span>
+                        <span className="text-neutral-800">{(data as Table<'orders'>).pricing.deliveryFee} ₽</span>
+                      </div>
+                      <div className="flex justify-between items-center font-medium border-t border-neutral-200 pt-3">
+                        <span className="text-neutral-700">Итого:</span>
+                        <span className="text-neutral-900 font-semibold">{(data as Table<'orders'>).pricing.finalPrice} ₽</span>
+                      </div>
 
-                  <div className="text-xs text-neutral-500 mt-4 pt-3 border-t border-neutral-200">Рассчитано: {new Date((data as Table<'orders'>).pricing.calculatedAt).toLocaleString('ru-RU')}</div>
+                      {/* Детализация комиссий экспертов */}
+                      {Object.keys((data as Table<'orders'>).pricing.expertCommissions).length > 0 && (
+                        <details className="mt-4 bg-neutral-50 border border-neutral-200 rounded-lg p-3">
+                          <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-800 font-medium">Детализация комиссий экспертов</summary>
+                          <div className="mt-3 space-y-2">
+                            {Object.entries((data as Table<'orders'>).pricing.expertCommissions).map(([expert, commission]) => (
+                              <div key={expert} className="flex justify-between text-xs">
+                                <span className="text-neutral-600">{expert}:</span>
+                                <span className="text-neutral-800">{commission} ₽</span>
+                              </div>
+                            ))}
+                          </div>
+                        </details>
+                      )}
+
+                      <div className="text-xs text-neutral-500 mt-4 pt-3 border-t border-neutral-200">Рассчитано: {new Date((data as Table<'orders'>).pricing.calculatedAt).toLocaleString('ru-RU')}</div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -995,8 +1043,8 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto xl:px-5 xl:py-3 sm:px-4 sm:py-3 px-6 py-4">
-          {/* We show ID for view and edit modes */}
-          {data?._id && mode !== 'create' && (
+          {/* We show ID for view and edit modes (except for user mode) */}
+          {data?._id && mode !== 'create' && !isUserMode && (
             <div className="mb-4">
               <span className="text-sm font-medium text-neutral-600">ID: </span>
               <Badge variant="secondary" className="font-mono text-xs">
