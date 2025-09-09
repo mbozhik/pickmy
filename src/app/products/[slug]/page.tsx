@@ -13,8 +13,9 @@ import {notFound} from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import Container from '~/Global/Container'
-import {H2, H3, P, SPAN} from '~/UI/Typography'
 import ProductActions from '~~/products/ProductActions'
+import {H2, P, SPAN} from '~/UI/Typography'
+import Markdown from '~/UI/Markdown'
 
 type ParamsProps = {
   params: Promise<{slug: string}>
@@ -80,8 +81,7 @@ export default async function ProductsItemPage({params}: ParamsProps) {
       </div>
 
       <div className="space-y-3">
-        <H3>Описание</H3>
-        <P>{product.description}</P>
+        <Markdown content={product.description} />
       </div>
     </Container>
   )

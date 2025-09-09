@@ -46,8 +46,26 @@ const productSchema = z.object({
   image: z
     .any()
     .optional()
-    .refine((file) => !file || file.size <= MAX_FILE_SIZE, `Максимальный размер файла 500KB.`)
-    .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file?.type), 'Поддерживаются только форматы .jpg, .jpeg, .png и .webp.'),
+    .refine((file) => {
+      // If it's a File object, validate size
+      if (file instanceof File) {
+        return file.size <= MAX_FILE_SIZE
+      }
+      // If it's a string (existing image ID), it's valid
+      if (typeof file === 'string') {
+        return true
+      }
+      // If it's undefined/null, it's valid (optional)
+      return true
+    }, `Максимальный размер файла 500KB.`)
+    .refine((file) => {
+      // If it's a File object, validate type
+      if (file instanceof File) {
+        return ACCEPTED_IMAGE_TYPES.includes(file.type)
+      }
+      // If it's a string (existing image ID) or undefined, it's valid
+      return true
+    }, 'Поддерживаются только форматы .jpg, .jpeg, .png и .webp.'),
 })
 
 const categorySchema = z.object({
@@ -169,6 +187,16 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
       // For products in expert mode, ensure expert is set to current expert
       if (isExpertMode && entityType === 'products' && currentExpertId) {
         return {...defaults[entityType], ...editableData, expert: currentExpertId, featured: false}
+      }
+
+      // For products, ensure image field is properly set
+      if (entityType === 'products') {
+        const productData = editableData as Record<string, unknown>
+        return {
+          ...defaults[entityType],
+          ...editableData,
+          image: productData.image || undefined, // Keep existing image ID or undefined
+        }
       }
 
       return {...defaults[entityType], ...editableData}
@@ -738,7 +766,17 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                 <FormItem>
                   <FormLabel>Описание</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Описание продукта" disabled={isReadonly} className="min-h-[120px]" {...field} />
+                    <Textarea
+                      placeholder={`Описание продукта
+
+Пример:
+# Заголовок
+## Текст для блока
+`}
+                      disabled={isReadonly}
+                      className="min-h-[120px]"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
