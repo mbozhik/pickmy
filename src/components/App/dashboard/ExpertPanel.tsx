@@ -8,7 +8,7 @@ import type {AdminTableTabs} from '~~/dashboard/AdminPanel'
 import {PATHS} from '@/lib/constants'
 import {api} from '@convex/_generated/api'
 
-import {useCurrentUser} from '@/utils/use-current-user'
+import {useCurrentUser} from '@/hooks/use-current-user'
 
 import {useState} from 'react'
 import {useQuery, useMutation} from 'convex/react'

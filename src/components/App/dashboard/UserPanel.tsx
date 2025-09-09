@@ -4,7 +4,7 @@ import type {Doc as Table} from '@convex/_generated/dataModel'
 import type {AdminTableTabs} from '~~/dashboard/AdminPanel'
 
 import {api} from '@convex/_generated/api'
-import {useCurrentUser} from '@/utils/use-current-user'
+import {useCurrentUser} from '@/hooks/use-current-user'
 
 import {useState, useMemo, useCallback} from 'react'
 import {useQuery} from 'convex/react'

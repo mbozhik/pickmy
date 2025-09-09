@@ -1,6 +1,6 @@
 'use client'
 
-import {useCurrentUser} from '@/utils/use-current-user'
+import {useCurrentUser} from '@/hooks/use-current-user'
 
 import Container from '~/Global/Container'
 import PageHero from '~/UI/PageHero'

@@ -8,7 +8,7 @@ import {useQuery, useMutation} from 'convex/react'
 import {useCartStore} from '@/stores/cart-store'
 import {useCustomerStore} from '@/stores/customer-store'
 import {calculatePricing, formatPrice} from '@/lib/pricing'
-import {generateOrderToken} from '@/lib/order-token'
+import {generateOrderToken} from '@/utils/order-token'
 
 import {useState, useEffect} from 'react'
 import {useForm} from 'react-hook-form'

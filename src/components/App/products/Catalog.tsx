@@ -3,7 +3,7 @@
 import type {ProductWithExtraData} from '~/UI/Grid'
 
 import {cn} from '@/lib/utils'
-import {useMediaQuery} from '@/utils/use-media-query'
+import {useMediaQuery} from '@/hooks/use-media-query'
 
 import {useState, useMemo, useEffect} from 'react'
 import {useRouter, useSearchParams} from 'next/navigation'
