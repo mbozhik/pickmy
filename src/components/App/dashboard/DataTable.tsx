@@ -1,12 +1,13 @@
 'use client'
 
-import {Eye, Edit, Trash2, Plus, Check, X} from 'lucide-react'
+import {Eye, Edit, Trash2, Plus, Check, X, Link as SourceLink} from 'lucide-react'
 
 import type {AdminTableData, AdminTableTabs} from '~~/dashboard/AdminPanel'
 
 import * as React from 'react'
 import {ColumnDef, flexRender, getCoreRowModel, getSortedRowModel, SortingState, useReactTable} from '@tanstack/react-table'
 
+import Link from 'next/link'
 import {Button} from '~/core/button'
 import {Badge} from '~/core/badge'
 import {AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger} from '~/core/alert-dialog'
@@ -216,6 +217,20 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
           cell: ({row}) => {
             const price = row.getValue('price') as number
             return <div>{price} ₽</div>
+          },
+        },
+        {
+          accessorKey: 'link',
+          header: 'Ссылка',
+          cell: ({row}) => {
+            const link = (row.original as {link: string}).link
+            return (
+              <Link href={link || '#'} target="_blank">
+                <Toggle pressed={Boolean(link)} disabled className="data-[state=on]:bg-neutral-200">
+                  <SourceLink className="h-4 w-4" strokeWidth={2} />
+                </Toggle>
+              </Link>
+            )
           },
         },
         {

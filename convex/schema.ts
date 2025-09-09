@@ -13,6 +13,8 @@ export default defineSchema({
     category: v.id('categories'),
     expert: v.id('experts'),
     caption: v.string(),
+    description: v.string(),
+    link: v.string(),
     slug: v.string(),
     featured: v.boolean(),
     price: v.number(),

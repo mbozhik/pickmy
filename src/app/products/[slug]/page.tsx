@@ -13,7 +13,7 @@ import {notFound} from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import Container from '~/Global/Container'
-import {H2, P, SPAN} from '~/UI/Typography'
+import {H2, H3, P, SPAN} from '~/UI/Typography'
 import ProductActions from '~~/products/ProductActions'
 
 type ParamsProps = {
@@ -63,7 +63,7 @@ export default async function ProductsItemPage({params}: ParamsProps) {
                 <P>
                   <span>Рекомендация от </span>
 
-                  <Link href={`${PATHS.global.experts.link}/${product.expertData.username}`} className="w-fit font-medium">
+                  <Link href={`${PATHS.global.experts.link}/${product.expertData.username}`} className="w-fit font-medium hover:text-neutral-500 duration-300">
                     @{product.expertData.username}
                   </Link>
                 </P>
@@ -77,6 +77,11 @@ export default async function ProductsItemPage({params}: ParamsProps) {
 
           <ProductActions product={product} />
         </div>
+      </div>
+
+      <div className="space-y-3">
+        <H3>Описание</H3>
+        <P>{product.description}</P>
       </div>
     </Container>
   )

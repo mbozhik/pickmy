@@ -36,7 +36,9 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/web
 const productSchema = z.object({
   name: z.string().min(1, 'Название обязательно'),
   category: z.string().min(1, 'Выберите категорию'),
-  caption: z.string().min(1, 'Описание обязательно'),
+  caption: z.string().min(1, 'Краткое описание обязательно'),
+  description: z.string().min(1, 'Описание обязательно'),
+  link: z.url('Некорректная ссылка').min(1, 'Ссылка обязательна'),
   expert: z.string().min(1, 'Выберите эксперта'),
   slug: z.string().min(1, 'Токен обязателен'),
   featured: z.boolean().default(false),
@@ -141,6 +143,8 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
         name: '',
         category: '',
         caption: '',
+        description: '',
+        link: '',
         expert: isExpertMode && currentExpertId ? currentExpertId : '',
         slug: '',
         featured: false,
@@ -242,6 +246,8 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
               name: productValues.name,
               category: productValues.category as Id<'categories'>,
               caption: productValues.caption,
+              description: productValues.description,
+              link: productValues.link,
               expert: (isExpertMode && currentExpertId ? currentExpertId : productValues.expert) as Id<'experts'>,
               slug: productValues.slug,
               featured: isExpertMode ? false : productValues.featured,
@@ -293,6 +299,8 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
               name: productValues.name,
               category: productValues.category as Id<'categories'>,
               caption: productValues.caption,
+              description: productValues.description,
+              link: productValues.link,
               expert: (isExpertMode && currentExpertId ? currentExpertId : productValues.expert) as Id<'experts'>,
               slug: productValues.slug,
               featured: isExpertMode ? false : productValues.featured,
@@ -715,9 +723,35 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
               name="caption"
               render={({field}) => (
                 <FormItem>
+                  <FormLabel>Краткое описание</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Краткое описание продукта" disabled={isReadonly} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({field}) => (
+                <FormItem>
                   <FormLabel>Описание</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Описание продукта" disabled={isReadonly} {...field} />
+                    <Textarea placeholder="Описание продукта" disabled={isReadonly} className="min-h-[120px]" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="link"
+              render={({field}) => (
+                <FormItem>
+                  <FormLabel>Ссылка на источник</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.com" disabled={isReadonly} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

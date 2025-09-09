@@ -19,7 +19,7 @@ export type Category = Table<'categories'>
 export type Expert = Table<'experts'>
 export type Order = Table<'orders'>
 
-export type AdminTableData = Table<'users'> | Table<'products'> | Table<'categories'> | Table<'experts'> | Table<'orders'>
+export type AdminTableData = Table<'orders'> | Table<'experts'> | Table<'products'> | Table<'categories'> | Table<'users'>
 
 export type AdminTableTabs = 'orders' | 'experts' | 'products' | 'categories' | 'users'
 
@@ -128,6 +128,8 @@ export default function AdminPanel() {
             category: product.categoryData._id,
             categoryName: product.categoryData.name,
             caption: product.caption,
+            description: product.description,
+            link: product.link,
             expert: product.expertData._id,
             slug: product.slug,
             featured: product.featured,

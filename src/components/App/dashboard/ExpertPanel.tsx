@@ -51,6 +51,8 @@ export default function ExpertPanel() {
       category: product.categoryData._id,
       categoryName: product.categoryData.name,
       caption: product.caption,
+      description: product.description ?? '',
+      link: product.link ?? '',
       expert: product.expertData._id,
       slug: product.slug,
       featured: product.featured,
