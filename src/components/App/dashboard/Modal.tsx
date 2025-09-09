@@ -20,6 +20,7 @@ import {Button} from '~/core/button'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/core/select'
 import {Checkbox} from '~/core/checkbox'
 import {Badge} from '~/core/badge'
+import {generateSlug} from '@/utils/slug'
 
 export type ModalMode = 'create' | 'edit' | 'view'
 
@@ -693,7 +694,17 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                 <FormItem>
                   <FormLabel>Название</FormLabel>
                   <FormControl>
-                    <Input placeholder="Название продукта" disabled={isReadonly} {...field} />
+                    <Input
+                      placeholder="Название продукта"
+                      disabled={isReadonly}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        if (mode === 'create' && e.target.value) {
+                          form.setValue('slug', generateSlug(e.target.value))
+                        }
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -717,7 +728,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
               name="slug"
               render={({field}) => (
                 <FormItem>
-                  <FormLabel>Slug</FormLabel>
+                  <FormLabel>Токен</FormLabel>
                   <FormControl>
                     <Input placeholder="product-slug" disabled={isReadonly} {...field} />
                   </FormControl>
@@ -879,7 +890,17 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                 <FormItem>
                   <FormLabel>Название</FormLabel>
                   <FormControl>
-                    <Input placeholder="Название категории" disabled={isReadonly} {...field} />
+                    <Input
+                      placeholder="Название категории"
+                      disabled={isReadonly}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        if (mode === 'create' && e.target.value) {
+                          form.setValue('slug', generateSlug(e.target.value))
+                        }
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -903,7 +924,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
               name="slug"
               render={({field}) => (
                 <FormItem>
-                  <FormLabel>Slug</FormLabel>
+                  <FormLabel>Токен</FormLabel>
                   <FormControl>
                     <Input placeholder="category-slug" disabled={isReadonly} {...field} />
                   </FormControl>
@@ -924,7 +945,17 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                 <FormItem>
                   <FormLabel>Имя</FormLabel>
                   <FormControl>
-                    <Input placeholder="Имя эксперта" disabled={isReadonly} {...field} />
+                    <Input
+                      placeholder="Имя эксперта"
+                      disabled={isReadonly}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e)
+                        if (mode === 'create' && e.target.value) {
+                          form.setValue('username', generateSlug(e.target.value))
+                        }
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -948,9 +979,9 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
               name="username"
               render={({field}) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Токен</FormLabel>
                   <FormControl>
-                    <Input placeholder="Username" disabled={isReadonly} {...field} />
+                    <Input placeholder="Токен" disabled={isReadonly} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
