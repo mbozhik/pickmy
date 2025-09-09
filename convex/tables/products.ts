@@ -40,40 +40,45 @@ async function enrichProductsWithExtraData(ctx: QueryCtx, products: Table<'produ
   const categoryMap = new Map(categories.filter(Boolean).map((c) => [c!._id, c!]))
   const expertMap = new Map(experts.filter(Boolean).map((e) => [e!._id, e!]))
 
-  // Объединяем продукты с категориями и экспертами
+  // Фильтруем продукты только активных экспертов и обогащаем их данными
   const enrichedProducts = await Promise.all(
-    products.map(async (product) => {
-      const category = categoryMap.get(product.category)
-      const expert = expertMap.get(product.expert)
+    products
+      .filter((product) => {
+        const expert = expertMap.get(product.expert)
+        return expert && expert.isActive // Показываем только продукты активных экспертов
+      })
+      .map(async (product) => {
+        const category = categoryMap.get(product.category)
+        const expert = expertMap.get(product.expert)
 
-      if (!category) {
-        throw new Error(`Category not found for product ${product.name}`)
-      }
-      if (!expert) {
-        throw new Error(`Expert not found for product ${product.name}`)
-      }
+        if (!category) {
+          throw new Error(`Category not found for product ${product.name}`)
+        }
+        if (!expert) {
+          throw new Error(`Expert not found for product ${product.name}`)
+        }
 
-      // Получаем URL изображения если оно есть
-      const imageUrl = product.image ? await ctx.storage.getUrl(product.image) : undefined
+        // Получаем URL изображения если оно есть
+        const imageUrl = product.image ? await ctx.storage.getUrl(product.image) : undefined
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {category: _, expert: __, ...productWithoutRefs} = product
-      return {
-        ...productWithoutRefs,
-        categoryData: {
-          _id: category._id,
-          name: category.name,
-          slug: category.slug,
-        },
-        expertData: {
-          _id: expert._id,
-          name: expert.name,
-          role: expert.role,
-          username: expert.username,
-        },
-        imageUrl: imageUrl || undefined,
-      }
-    }),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const {category: _, expert: __, ...productWithoutRefs} = product
+        return {
+          ...productWithoutRefs,
+          categoryData: {
+            _id: category._id,
+            name: category.name,
+            slug: category.slug,
+          },
+          expertData: {
+            _id: expert._id,
+            name: expert.name,
+            role: expert.role,
+            username: expert.username,
+          },
+          imageUrl: imageUrl || undefined,
+        }
+      }),
   )
 
   return enrichedProducts
