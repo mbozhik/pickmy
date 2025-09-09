@@ -33,7 +33,7 @@ export default defineSchema({
     name: v.string(),
     role: v.string(),
     username: v.string(),
-    link: v.string(),
+    link: v.optional(v.string()),
     featured: v.boolean(),
     userId: v.id('users'),
     isActive: v.boolean(),

@@ -172,11 +172,17 @@ export default function ExpertPanel() {
 
                 <div>
                   <label className="text-sm font-medium text-neutral-600">Ссылка</label>
-                  <Link className="block w-fit group" href={expert.link} target="_blank">
-                    <Badge variant="secondary" className="font-mono group-hover:bg-neutral-300 duration-300">
-                      {expert.link}
+                  {expert.link ? (
+                    <Link className="block w-fit group" href={expert.link} target="_blank">
+                      <Badge variant="secondary" className="font-mono group-hover:bg-neutral-300 duration-300">
+                        {expert.link}
+                      </Badge>
+                    </Link>
+                  ) : (
+                    <Badge variant="outline" className="block font-mono text-neutral-500">
+                      Не указано
                     </Badge>
-                  </Link>
+                  )}
                 </div>
               </div>
             </CardContent>

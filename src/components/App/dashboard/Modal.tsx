@@ -57,7 +57,7 @@ const expertSchema = z.object({
   name: z.string().min(1, 'Имя обязательно'),
   role: z.string().min(1, 'Роль обязательна'),
   username: z.string().min(1, 'Токен обязателен'),
-  link: z.url('Некорректная ссылка').min(1, 'Ссылка обязательна'),
+  link: z.string().optional(),
   userId: z.string().min(1, 'Выберите пользователя'),
   featured: z.boolean().default(false),
   isActive: z.boolean().default(true),
@@ -67,7 +67,7 @@ const expertSelfEditSchema = z.object({
   name: z.string().min(1, 'Имя обязательно'),
   role: z.string().min(1, 'Роль обязательна'),
   username: z.string().min(1, 'Токен обязателен'),
-  link: z.url('Некорректная ссылка').min(1, 'Ссылка обязательна'),
+  link: z.string().optional(),
 })
 
 const orderSchema = z.object({
@@ -950,7 +950,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="username" disabled={isReadonly} {...field} />
+                    <Input placeholder="Username" disabled={isReadonly} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
