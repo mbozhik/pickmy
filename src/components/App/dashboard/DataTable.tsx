@@ -51,17 +51,17 @@ const truncateId = (id: string, maxLength: number = 10) => {
 const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onView: (item: T) => void, onEdit: (item: T) => void, onDelete: (id: string) => void, isExpertMode: boolean = false, isUserMode: boolean = false): ColumnDef<T>[] => {
   const baseColumns: ColumnDef<T>[] = []
 
-  if (!isUserMode) {
-    baseColumns.push({
-      accessorKey: '_id',
-      header: 'ID',
-      cell: ({row}) => (
-        <Badge variant="secondary" className="font-mono text-xs">
-          {truncateId(row.getValue('_id'))}
-        </Badge>
-      ),
-    })
-  }
+  // if (!isUserMode) {
+  //   baseColumns.push({
+  //     accessorKey: '_id',
+  //     header: 'ID',
+  //     cell: ({row}) => (
+  //       <Badge variant="secondary" className="font-mono text-xs">
+  //         {truncateId(row.getValue('_id'))}
+  //       </Badge>
+  //     ),
+  //   })
+  // }
 
   switch (entityType) {
     case 'orders':
@@ -199,18 +199,26 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
           header: 'Категория',
           cell: ({row}) => {
             const categoryName = row.getValue('categoryName') as string
+
+            const originalCategory = (row.original as unknown as {category?: string | string[]}).category
+            const extraCount = Array.isArray(originalCategory) && originalCategory.length > 1 ? originalCategory.length - 1 : 0
             return (
-              <Badge variant="secondary" className="text-xs tracking-tight">
-                {categoryName}
-              </Badge>
+              <div className="flex items-center gap-1 text-neutral-500 text-xs tracking-tight">
+                <Badge variant="secondary">{categoryName}</Badge>
+                {extraCount > 0 && (
+                  <Badge variant="outline" className="px-1.25">
+                    +{extraCount}
+                  </Badge>
+                )}
+              </div>
             )
           },
         },
-        {
-          accessorKey: 'caption',
-          header: 'Описание',
-          cell: ({row}) => <div className="max-w-xs truncate">{row.getValue('caption')}</div>,
-        },
+        // {
+        //   accessorKey: 'caption',
+        //   header: 'Описание',
+        //   cell: ({row}) => <div className="max-w-xs truncate">{row.getValue('caption')}</div>,
+        // },
         {
           accessorKey: 'price',
           header: 'Цена',

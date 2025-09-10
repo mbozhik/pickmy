@@ -20,7 +20,7 @@ const productWithExtraData = v.object({
   _id: v.id('products'),
   _creationTime: v.number(),
   name: v.string(),
-  categoryData: categoryData,
+  categoryData: v.array(categoryData),
   caption: v.string(),
   description: v.string(),
   link: v.string(),
@@ -34,7 +34,7 @@ const productWithExtraData = v.object({
 
 async function enrichProductsWithExtraData(ctx: QueryCtx, products: Table<'products'>[]) {
   // Собираем уникальные ID категорий и экспертов
-  const categoryIds = [...new Set(products.map((p) => p.category))]
+  const categoryIds = [...new Set(products.flatMap((p) => (Array.isArray(p.category) ? p.category : [p.category])))]
   const expertIds = [...new Set(products.map((p) => p.expert))]
   // Batch запросы для категорий и экспертов
   const [categories, experts] = await Promise.all([Promise.all(categoryIds.map((id) => ctx.db.get(id))), Promise.all(expertIds.map((id) => ctx.db.get(id)))])
@@ -50,7 +50,8 @@ async function enrichProductsWithExtraData(ctx: QueryCtx, products: Table<'produ
         return expert && expert.isActive // Показываем только продукты активных экспертов
       })
       .map(async (product) => {
-        const category = categoryMap.get(product.category)
+        const categoryList = Array.isArray(product.category) ? product.category : [product.category]
+        const category = categoryMap.get(categoryList[0])
         const expert = expertMap.get(product.expert)
 
         if (!category) {
@@ -67,11 +68,10 @@ async function enrichProductsWithExtraData(ctx: QueryCtx, products: Table<'produ
         const {category: _, expert: __, ...productWithoutRefs} = product
         return {
           ...productWithoutRefs,
-          categoryData: {
-            _id: category._id,
-            name: category.name,
-            slug: category.slug,
-          },
+          categoryData: categoryList.map((catId) => {
+            const c = categoryMap.get(catId)
+            return c ? {_id: c._id, name: c.name, slug: c.slug} : {_id: catId, name: 'Unknown', slug: ''}
+          }),
           expertData: {
             _id: expert._id,
             name: expert.name,
@@ -89,7 +89,7 @@ async function enrichProductsWithExtraData(ctx: QueryCtx, products: Table<'produ
 export const createProduct = mutation({
   args: {
     name: v.string(),
-    category: v.id('categories'),
+    category: v.array(v.id('categories')),
     caption: v.string(),
     description: v.string(),
     link: v.string(),
@@ -140,7 +140,7 @@ export const updateProduct = mutation({
     description: v.string(),
     link: v.string(),
     slug: v.string(),
-    category: v.id('categories'),
+    category: v.array(v.id('categories')),
     expert: v.id('experts'),
     featured: v.boolean(),
     price: v.number(),
@@ -183,12 +183,13 @@ export const getProductsFeatured = query({
 export const getProductsByCategory = query({
   args: {categoryId: v.id('categories')},
   handler: async (ctx, args) => {
-    const products = await ctx.db
-      .query('products')
-      .withIndex('by_category', (q) => q.eq('category', args.categoryId))
-      .collect()
+    const products = await ctx.db.query('products').collect()
+    const filtered = products.filter((p) => {
+      const cats = Array.isArray(p.category) ? p.category : [p.category]
+      return cats.includes(args.categoryId)
+    })
 
-    return enrichProductsWithExtraData(ctx, products)
+    return enrichProductsWithExtraData(ctx, filtered)
   },
 })
 

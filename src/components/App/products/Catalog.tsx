@@ -28,19 +28,20 @@ export default function Catalog({products}: {products: ProductWithExtraData[]}) 
     const categoryMap = new Map<string, CategoryWithCount>()
 
     products.forEach((product) => {
-      const category = product.categoryData
-      const existing = categoryMap.get(category._id)
+      product.categoryData.forEach((category) => {
+        const existing = categoryMap.get(category._id)
 
-      if (existing) {
-        existing.count += 1
-      } else {
-        categoryMap.set(category._id, {
-          _id: category._id,
-          name: category.name,
-          slug: category.slug,
-          count: 1,
-        })
-      }
+        if (existing) {
+          existing.count += 1
+        } else {
+          categoryMap.set(category._id, {
+            _id: category._id,
+            name: category.name,
+            slug: category.slug,
+            count: 1,
+          })
+        }
+      })
     })
 
     return Array.from(categoryMap.values()).sort((a, b) => b.count - a.count)
@@ -48,7 +49,7 @@ export default function Catalog({products}: {products: ProductWithExtraData[]}) 
 
   const filteredProducts = useMemo(() => {
     if (!selectedCategorySlug) return products
-    return products.filter((product) => product.categoryData.slug === selectedCategorySlug)
+    return products.filter((product) => product.categoryData.some((c) => c.slug === selectedCategorySlug))
   }, [products, selectedCategorySlug])
 
   useEffect(() => {

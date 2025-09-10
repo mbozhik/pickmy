@@ -56,8 +56,8 @@ export default async function ProductsItemPage({params}: ParamsProps) {
 
         <div className={cn('col-span-3 sm:col-span-1', 'flex flex-col justify-between sm:gap-8')}>
           <div className="space-y-4 xl:space-y-3.5">
-            <div className="xl:space-y-1.5 sm:space-y-2">
-              <H2 className="!leading-[1.3]">{product.name}</H2>
+            <div className="space-y-2.5 xl:space-y-1.5 sm:space-y-2">
+              <H2 className="!leading-[1.15]">{product.name}</H2>
 
               <div className="space-y-1 sm:space-y-1.5 font-light">
                 <P>{product.caption}</P>
@@ -71,9 +71,15 @@ export default async function ProductsItemPage({params}: ParamsProps) {
               </div>
             </div>
 
-            <Link href={PATHS.internal.category.link + product.categoryData.slug} className={cn('block w-fit px-6 py-2', 'bg-foreground text-background rounded-lg', 'hover:bg-foreground/85 duration-300')}>
-              <SPAN>{product.categoryData.name}</SPAN>
-            </Link>
+            <div className="flex flex-wrap gap-1.5">
+              {product.categoryData &&
+                product.categoryData.length > 0 &&
+                product.categoryData.map((cat) => (
+                  <Link key={cat._id} href={PATHS.internal.category.link + (cat.slug ?? '')} className={cn('inline-block w-fit px-4 py-1.5', 'bg-foreground text-background rounded-lg', 'hover:bg-foreground/85 duration-300')}>
+                    <SPAN>{cat.name}</SPAN>
+                  </Link>
+                ))}
+            </div>
           </div>
 
           <ProductActions product={product} />

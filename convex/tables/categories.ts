@@ -4,7 +4,7 @@ import {v} from 'convex/values'
 export const createCategory = mutation({
   args: {
     name: v.string(),
-    description: v.string(),
+    description: v.optional(v.string()),
     slug: v.string(),
   },
   handler: async (ctx, args) => {
@@ -28,7 +28,7 @@ export const updateCategory = mutation({
   args: {
     id: v.id('categories'),
     name: v.string(),
-    description: v.string(),
+    description: v.optional(v.string()),
     slug: v.string(),
   },
   handler: async (ctx, args) => {

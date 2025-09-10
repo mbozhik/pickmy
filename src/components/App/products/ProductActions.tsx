@@ -1,5 +1,7 @@
 'use client'
 
+import {ShoppingCart} from 'lucide-react'
+
 import {useCartStore} from '@/stores/cart-store'
 import {calculateProductPrice, formatPrice} from '@/lib/pricing'
 import {cn} from '@/lib/utils'
@@ -10,6 +12,7 @@ import {toast} from 'sonner'
 import {H3, SPAN} from '~/UI/Typography'
 import Button from '~/UI/Button'
 import CartModal from '~/UI/CartModal'
+import {Button as CoreButton} from '~/core/button'
 
 import type {ProductWithExtraData} from '~/UI/Grid'
 
@@ -59,5 +62,54 @@ export default function ProductActions({product}: {product: ProductWithExtraData
 
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
+  )
+}
+
+export function CartButton({product}: {product: ProductWithExtraData}) {
+  const {addItem, cart} = useCartStore()
+  const [isCartOpen, setIsCartOpen] = useState(false)
+
+  const isInCart = cart.items.some((item) => item.productId === product._id)
+
+  const handleAddToCart = () => {
+    addItem({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      expertId: product.expertData._id,
+      expertUsername: product.expertData.username,
+      imageUrl: product.imageUrl,
+      slug: product.slug,
+    })
+
+    toast.success(`${product.name} добавлен в корзину`, {
+      duration: 3000,
+    })
+  }
+
+  const handleOpenCart = () => {
+    setIsCartOpen(true)
+  }
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (isInCart) {
+      handleOpenCart()
+    } else {
+      handleAddToCart()
+    }
+  }
+
+  return (
+    <>
+      <div onClick={handleClick}>
+        <CoreButton size="sm" className="!p-1.5 h-auto">
+          <ShoppingCart className="size-5 sm:size-6" strokeWidth={1.5} />
+        </CoreButton>
+      </div>
+
+      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+    </>
   )
 }

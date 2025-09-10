@@ -10,7 +10,7 @@ export default defineSchema({
 
   products: defineTable({
     name: v.string(),
-    category: v.id('categories'),
+    category: v.array(v.id('categories')),
     expert: v.id('experts'),
     caption: v.string(),
     description: v.string(),
@@ -27,7 +27,7 @@ export default defineSchema({
 
   categories: defineTable({
     name: v.string(),
-    description: v.string(),
+    description: v.optional(v.string()),
     slug: v.string(),
   }),
 

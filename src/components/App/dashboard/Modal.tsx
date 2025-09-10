@@ -2,16 +2,19 @@
 
 import type {Id, Doc as Table} from '@convex/_generated/dataModel'
 import type {AdminTableData, AdminTableTabs} from '~~/dashboard/AdminPanel'
+
 import {api} from '@convex/_generated/api'
+import {useMutation, useQuery} from 'convex/react'
+
+import {generateSlug} from '@/utils/slug'
 
 import {useState, useEffect} from 'react'
-import {zodResolver} from '@hookform/resolvers/zod'
 import {useForm} from 'react-hook-form'
+import {zodResolver} from '@hookform/resolvers/zod'
 import {z} from 'zod'
 import {toast} from 'sonner'
-import {useMutation, useQuery} from 'convex/react'
-import Image from 'next/image'
 
+import Image from 'next/image'
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter} from '~/core/dialog'
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '~/core/form'
 import {Input} from '~/core/input'
@@ -20,7 +23,7 @@ import {Button} from '~/core/button'
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '~/core/select'
 import {Checkbox} from '~/core/checkbox'
 import {Badge} from '~/core/badge'
-import {generateSlug} from '@/utils/slug'
+import MultipleSelector, {type Option} from '~/Module/MultipleSelector'
 
 export type ModalMode = 'create' | 'edit' | 'view'
 
@@ -35,7 +38,7 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/web
 
 const productSchema = z.object({
   name: z.string().min(1, 'Название обязательно'),
-  category: z.string().min(1, 'Выберите категорию'),
+  category: z.array(z.string()).min(1, 'Выберите как минимум одну категорию'),
   caption: z.string().min(1, 'Краткое описание обязательно'),
   description: z.string().min(1, 'Описание обязательно'),
   link: z.url('Некорректная ссылка').min(1, 'Ссылка обязательна'),
@@ -70,7 +73,7 @@ const productSchema = z.object({
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Название обязательно'),
-  description: z.string().min(1, 'Описание обязательно'),
+  description: z.string().min(1, 'Описание обязательно').optional(),
   slug: z.string().min(1, 'Токен обязателен'),
 })
 
@@ -159,7 +162,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
       users: {email: '', role: 'user' as const},
       products: {
         name: '',
-        category: '',
+        category: [],
         caption: '',
         description: '',
         link: '',
@@ -169,7 +172,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
         price: 0,
         image: undefined,
       },
-      categories: {name: '', description: '', slug: ''},
+      categories: {name: '', description: undefined, slug: ''},
       experts: isExpertMode ? {name: '', role: '', username: '', link: ''} : {name: '', role: '', username: '', link: '', userId: '', featured: false, isActive: true},
     }
 
@@ -272,7 +275,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
 
             await createProduct({
               name: productValues.name,
-              category: productValues.category as Id<'categories'>,
+              category: productValues.category as Id<'categories'>[],
               caption: productValues.caption,
               description: productValues.description,
               link: productValues.link,
@@ -325,7 +328,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
             await updateProduct({
               id: data._id as Id<'products'>,
               name: productValues.name,
-              category: productValues.category as Id<'categories'>,
+              category: productValues.category as Id<'categories'>[],
               caption: productValues.caption,
               description: productValues.description,
               link: productValues.link,
@@ -748,6 +751,24 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
             />
             <FormField
               control={form.control}
+              name="category"
+              render={({field}) => {
+                const opts: Option[] = (categories || []).map((cat) => ({value: cat._id, label: cat.name}))
+                const selected: Option[] = Array.isArray(field.value) ? field.value.map((id) => opts.find((o) => o.value === id) ?? {value: id, label: id}) : []
+
+                return (
+                  <FormItem>
+                    <FormLabel>Категория</FormLabel>
+                    <FormControl>
+                      <MultipleSelector value={selected} options={opts} onChange={(newVals: Option[]) => field.onChange(newVals.map((v) => v.value))} disabled={isReadonly} className="w-full" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
+            />
+            <FormField
+              control={form.control}
               name="caption"
               render={({field}) => (
                 <FormItem>
@@ -804,30 +825,6 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                   <FormControl>
                     <Input placeholder="product-slug" disabled={isReadonly} {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="category"
-              render={({field}) => (
-                <FormItem>
-                  <FormLabel>Категория</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadonly}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Выберите категорию" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories?.map((cat) => (
-                        <SelectItem key={cat._id} value={cat._id}>
-                          {cat.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
