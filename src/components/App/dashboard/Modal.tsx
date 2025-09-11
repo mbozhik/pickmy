@@ -739,7 +739,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                       {...field}
                       onChange={(e) => {
                         field.onChange(e)
-                        if (mode === 'create' && e.target.value) {
+                        if (e.target.value) {
                           form.setValue('slug', generateSlug(e.target.value))
                         }
                       }}
@@ -965,7 +965,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                       {...field}
                       onChange={(e) => {
                         field.onChange(e)
-                        if (mode === 'create' && e.target.value) {
+                        if (e.target.value) {
                           form.setValue('slug', generateSlug(e.target.value))
                         }
                       }}
@@ -1020,7 +1020,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                       {...field}
                       onChange={(e) => {
                         field.onChange(e)
-                        if (mode === 'create' && e.target.value) {
+                        if (e.target.value) {
                           form.setValue('username', generateSlug(e.target.value))
                         }
                       }}

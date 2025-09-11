@@ -81,7 +81,7 @@ export default function Catalog({products}: {products: ProductWithExtraData[]}) 
         <Button variant="solid" className="hidden sm:block" text={isFiltersOpen ? 'Скрыть фильтры' : 'Фильтры'} onClick={() => setIsFiltersOpen(!isFiltersOpen)} />
 
         <motion.div
-          className="flex sm:grid sm:grid-cols-2 gap-2 sm:gap-1.5 w-full"
+          className="flex flex-wrap sm:grid sm:grid-cols-2 gap-2 sm:gap-1.5 w-full"
           initial={false}
           animate={
             isDesktop
@@ -94,7 +94,7 @@ export default function Catalog({products}: {products: ProductWithExtraData[]}) 
           transition={isDesktop ? {duration: 0} : {duration: 0.3, delay: 0.2, ease: 'easeInOut'}}
         >
           {categoriesWithCount.map((category) => (
-            <button className={cn(BUTTON_STYLES.base, 'w-full', selectedCategorySlug !== category.slug ? 'bg-gray hover:bg-foreground/85 border-neutral-300 hover:border-foreground text-neutral-800 hover:text-background' : 'bg-foreground border-foreground text-background')} data-count={category.count} onClick={() => handleCategorySelect(category.slug)} key={category._id}>
+            <button className={cn(BUTTON_STYLES.base, selectedCategorySlug !== category.slug ? 'bg-gray hover:bg-foreground/85 border-neutral-300 hover:border-foreground text-neutral-800 hover:text-background' : 'bg-foreground border-foreground text-background')} data-count={category.count} onClick={() => handleCategorySelect(category.slug)} key={category._id}>
               {category.name}
             </button>
           ))}

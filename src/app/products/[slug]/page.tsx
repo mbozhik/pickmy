@@ -44,7 +44,7 @@ export default async function ProductsItemPage({params}: ParamsProps) {
   }
 
   return (
-    <Container spacing="small">
+    <Container spacing="small" className="space-y-20 xl:space-y-20 sm:space-y-20">
       <div className="grid grid-cols-5 sm:grid-cols-1 gap-20 xl:gap-12 sm:gap-4">
         <div className={cn('col-span-2 sm:col-span-1', 'py-14 sm:py-8 grid place-items-center', 'group bg-gray')}>
           {product.imageUrl ? (
