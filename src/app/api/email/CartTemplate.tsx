@@ -137,9 +137,9 @@ export const CartTemplate = ({orderToken, items, customerInfo, pricing}: FormFie
                           </Text>
                           <div>
                             <Text className="text-neutral-700 text-[13px] m-0 -mb-1">
-                              Цена: {item.price.toLocaleString('ru-RU')}₽ × {item.quantity}шт
+                              Цена: ${item.price} × {item.quantity}шт
                             </Text>
-                            <Text className="text-neutral-900 text-[13px] font-medium m-0">Сумма: {(item.price * item.quantity).toLocaleString('ru-RU')}₽</Text>
+                            <Text className="text-neutral-900 text-[13px] font-medium m-0">Сумма: ${item.price * item.quantity}</Text>
                           </div>
                         </div>
                       </div>
@@ -156,20 +156,20 @@ export const CartTemplate = ({orderToken, items, customerInfo, pricing}: FormFie
                 <div className="bg-white rounded-md p-4 border border-neutral-200">
                   <div className="flex justify-between items-center">
                     <Text className="text-neutral-700 text-[14px] m-0">Сумма товаров:</Text>
-                    <Text className="text-neutral-900 text-[14px] font-medium m-0">{pricing.basePrice.toLocaleString('ru-RU')}₽</Text>
+                    <Text className="text-neutral-900 text-[14px] font-medium m-0">${pricing.basePrice}</Text>
                   </div>
                   <div className="flex justify-between items-center mt-3">
                     <Text className="text-neutral-700 text-[14px] m-0">Комиссия экспертов (3%):</Text>
-                    <Text className="text-neutral-900 text-[14px] font-medium m-0">{pricing.expertCommission.toLocaleString('ru-RU')}₽</Text>
+                    <Text className="text-neutral-900 text-[14px] font-medium m-0">${pricing.expertCommission}</Text>
                   </div>
                   <div className="flex justify-between items-center mt-3 pb-3">
                     <Text className="text-neutral-700 text-[14px] m-0">Доставка:</Text>
-                    <Text className="text-neutral-900 text-[14px] font-medium m-0">{pricing.deliveryFee.toLocaleString('ru-RU')}₽</Text>
+                    <Text className="text-neutral-900 text-[14px] font-medium m-0">${pricing.deliveryFee}</Text>
                   </div>
                   <Hr className="border-neutral-300 my-0" />
                   <div className="flex justify-between items-center pt-3">
                     <Text className="text-neutral-900 text-[16px] font-bold m-0">Итого к оплате:</Text>
-                    <Text className="text-neutral-900 text-[18px] font-bold m-0">{pricing.finalPrice.toLocaleString('ru-RU')}₽</Text>
+                    <Text className="text-neutral-900 text-[18px] font-bold m-0">${pricing.finalPrice}</Text>
                   </div>
                 </div>
               </div>
@@ -198,7 +198,7 @@ CartTemplate.PreviewProps = {
     {
       productId: 'omega-complex',
       name: 'Omega Complex',
-      price: 2490,
+      price: 25,
       quantity: 2,
       expertUsername: 'sofia-drozdova',
       imageUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop',
@@ -206,7 +206,7 @@ CartTemplate.PreviewProps = {
     {
       productId: 'brain-focus',
       name: 'Brain Focus',
-      price: 2890,
+      price: 29,
       quantity: 1,
       expertUsername: 'dmitry-volkov',
       imageUrl: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400&h=400&fit=crop',
@@ -214,7 +214,7 @@ CartTemplate.PreviewProps = {
     {
       productId: 'protein-power',
       name: 'Protein Power',
-      price: 3490,
+      price: 35,
       quantity: 1,
       expertUsername: 'alex-petrov',
       imageUrl: 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400&h=400&fit=crop',
@@ -228,10 +228,10 @@ CartTemplate.PreviewProps = {
     comment: 'Предпочитаю доставку в вечернее время после 18:00. Интересует возможность консультации по применению добавок.',
   },
   pricing: {
-    basePrice: 11360, // 2490*2 + 2890 + 3490
-    expertCommission: 341, // 3% от базовой суммы (округлено)
-    deliveryFee: 400, // 400₽
-    finalPrice: 12101, // итого
+    basePrice: 114, // 25*2 + 29 + 35
+    expertCommission: 3.42, // 3% от базовой суммы (114*0.03=3.42)
+    deliveryFee: 28.5, // 25% от basePrice (114*0.25=28.5)
+    finalPrice: 145.92, // итого
   },
 } as FormFields
 

@@ -46,7 +46,7 @@ export function ProductCard({product}: {product: ProductWithExtraData}) {
         <H5 className="sm:text-xl text-center font-medium !leading-[1.2] tracking-tight mx-auto max-w-[20ch]">{product.name}</H5>
 
         <div className={cn('w-full p-1.25 pl-2', 'flex items-center justify-between', 'bg-neutral-200 rounded-lg')}>
-          <H5 className="sm:text-xl">{product.price} ₽</H5>
+          <H5 className="sm:text-xl">${product.price.toFixed(2)}</H5>
 
           <CartButton product={product} />
         </div>

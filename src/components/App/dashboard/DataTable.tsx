@@ -88,7 +88,7 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
           header: 'Сумма',
           cell: ({row}) => {
             const pricing = row.getValue('pricing') as {finalPrice: number}
-            return <div>{pricing?.finalPrice || 0} ₽</div>
+            return <div>${pricing?.finalPrice || 0}</div>
           },
         },
         {
@@ -224,7 +224,7 @@ const createColumns = <T extends AdminTableData>(entityType: AdminTableTabs, onV
           header: 'Цена',
           cell: ({row}) => {
             const price = row.getValue('price') as number
-            return <div>{price} ₽</div>
+            return <div>${price.toFixed(2)}</div>
           },
         },
         {

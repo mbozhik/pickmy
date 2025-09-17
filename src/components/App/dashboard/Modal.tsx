@@ -45,7 +45,7 @@ const productSchema = z.object({
   expert: z.string().min(1, 'Выберите эксперта'),
   slug: z.string().min(1, 'Токен обязателен'),
   featured: z.boolean().default(false),
-  price: z.number().min(1, 'Цена обязательна'),
+  price: z.number().min(0.01, 'Цена должна быть больше 0'),
   image: z
     .any()
     .optional()
@@ -620,7 +620,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                             Эксперт: <span className="text-neutral-700">{item.expertUsername}</span>
                           </div>
                           <div className="text-xs text-neutral-600">
-                            <span className="text-neutral-700">{item.price} ₽</span> × <span className="text-neutral-700">{item.quantity}</span> = <span className="font-medium text-neutral-800">{item.price * item.quantity} ₽</span>
+                            <span className="text-neutral-700">${item.price.toFixed(2)}</span> × <span className="text-neutral-700">{item.quantity}</span> = <span className="font-medium text-neutral-800">${(item.price * item.quantity).toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
@@ -637,26 +637,26 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                     // Упрощенная версия для пользователей - только итоговая стоимость
                     <div className="flex justify-between items-center font-medium">
                       <span className="text-neutral-700">Итого к оплате:</span>
-                      <span className="text-neutral-900 font-semibold text-lg">{(data as Table<'orders'>).pricing.finalPrice} ₽</span>
+                      <span className="text-neutral-900 font-semibold text-lg">${(data as Table<'orders'>).pricing.finalPrice}</span>
                     </div>
                   ) : (
                     // Полная версия для админов
                     <>
                       <div className="flex justify-between items-center">
                         <span className="text-neutral-600">Сумма товаров:</span>
-                        <span className="text-neutral-800">{(data as Table<'orders'>).pricing.basePrice} ₽</span>
+                        <span className="text-neutral-800">${(data as Table<'orders'>).pricing.basePrice}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-neutral-600">Комиссия экспертов:</span>
-                        <span className="text-neutral-800">{(data as Table<'orders'>).pricing.expertCommission} ₽</span>
+                        <span className="text-neutral-800">${(data as Table<'orders'>).pricing.expertCommission}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-neutral-600">Доставка:</span>
-                        <span className="text-neutral-800">{(data as Table<'orders'>).pricing.deliveryFee} ₽</span>
+                        <span className="text-neutral-800">${(data as Table<'orders'>).pricing.deliveryFee}</span>
                       </div>
                       <div className="flex justify-between items-center font-medium border-t border-neutral-200 pt-3">
                         <span className="text-neutral-700">Итого:</span>
-                        <span className="text-neutral-900 font-semibold">{(data as Table<'orders'>).pricing.finalPrice} ₽</span>
+                        <span className="text-neutral-900 font-semibold">${(data as Table<'orders'>).pricing.finalPrice}</span>
                       </div>
 
                       {/* Детализация комиссий экспертов */}
@@ -667,7 +667,7 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
                             {Object.entries((data as Table<'orders'>).pricing.expertCommissions).map(([expert, commission]) => (
                               <div key={expert} className="flex justify-between text-xs">
                                 <span className="text-neutral-600">{expert}:</span>
-                                <span className="text-neutral-800">{commission} ₽</span>
+                                <span className="text-neutral-800">${commission}</span>
                               </div>
                             ))}
                           </div>
@@ -861,9 +861,27 @@ export default function Modal({isOpen, onClose, entityType, mode, data, onSucces
               name="price"
               render={({field}) => (
                 <FormItem>
-                  <FormLabel>Цена (₽)</FormLabel>
+                  <FormLabel>Цена ($)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="0" disabled={isReadonly} {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || 0)} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      disabled={isReadonly}
+                      {...field}
+                      value={field.value || ''}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        if (value === '') {
+                          field.onChange(0)
+                        } else {
+                          const numValue = parseFloat(value)
+                          if (!isNaN(numValue)) {
+                            field.onChange(numValue)
+                          }
+                        }
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

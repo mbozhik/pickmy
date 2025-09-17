@@ -1,9 +1,9 @@
 import type {CartItem} from '@/stores/cart-store'
 
 const CONFIG = {
-  EXPERT_COMMISSION_PERCENT: 3, // 3% комиссия эксперта с каждого продукта
-  DELIVERY_FEE: 1000, // 1000₽ за доставку
-  CACHE_EXPIRY_DAYS: 7, // Устаревание данных через 7 дней
+  EXPERT_COMMISSION_PERCENT: 15, // 15% комиссия эксперта с каждого продукта
+  DELIVERY_PERCENT: 25, // 25% от стоимости товаров за доставку
+  CACHE_EXPIRY_DAYS: 1, // Устаревание данных через 1 день
 } as const
 
 export type PricingBreakdown = {
@@ -20,31 +20,43 @@ export function calculatePricing(cartItems: CartItem[]): PricingBreakdown {
   // Базовая сумма всех товаров
   const basePrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
 
-  // Группируем товары по экспертам и считаем комиссию для каждого
+  // Экспертная комиссия рассчитывается как процент от базовой стоимости товаров
+  const expertCommission = basePrice * (CONFIG.EXPERT_COMMISSION_PERCENT / 100)
+
+  // Группируем товары по экспертам для распределения комиссии
   const expertCommissions: Record<string, number> = {}
   const itemCommissions: Array<{productId: string; itemTotal: number; commission: number}> = []
 
+  // Распределяем общую комиссию пропорционально стоимости товаров каждого эксперта
+  const expertTotals: Record<string, number> = {}
   cartItems.forEach((item) => {
     const itemTotal = item.price * item.quantity
-    const itemCommission = Math.round(itemTotal * (CONFIG.EXPERT_COMMISSION_PERCENT / 100))
+    if (!expertTotals[item.expertUsername]) {
+      expertTotals[item.expertUsername] = 0
+    }
+    expertTotals[item.expertUsername] += itemTotal
+  })
 
-    // Сохраняем детализацию по товару
+  // Рассчитываем комиссию для каждого эксперта пропорционально его товарам
+  Object.entries(expertTotals).forEach(([expertUsername, expertTotal]) => {
+    const expertCommissionAmount = (expertTotal / basePrice) * expertCommission
+    expertCommissions[expertUsername] = expertCommissionAmount
+  })
+
+  // Создаем детализацию по товарам для совместимости
+  cartItems.forEach((item) => {
+    const itemTotal = item.price * item.quantity
+    const itemCommission = (itemTotal / basePrice) * expertCommission
+
     itemCommissions.push({
       productId: item.productId,
       itemTotal,
       commission: itemCommission,
     })
-
-    if (!expertCommissions[item.expertUsername]) {
-      expertCommissions[item.expertUsername] = 0
-    }
-    expertCommissions[item.expertUsername] += itemCommission
   })
 
-  // Общая сумма комиссий всех экспертов
-  const expertCommission = Object.values(expertCommissions).reduce((total, commission) => total + commission, 0)
-
-  const deliveryFee = CONFIG.DELIVERY_FEE
+  // Доставка рассчитывается как процент от базовой стоимости товаров
+  const deliveryFee = basePrice * (CONFIG.DELIVERY_PERCENT / 100)
   const finalPrice = basePrice + expertCommission + deliveryFee
   const calculatedAt = Date.now()
 
@@ -60,8 +72,9 @@ export function calculatePricing(cartItems: CartItem[]): PricingBreakdown {
 }
 
 export function calculateProductPrice(price: number): {basePrice: number; commission: number; finalPrice: number} {
-  const commission = Math.round(price * (CONFIG.EXPERT_COMMISSION_PERCENT / 100))
-  const finalPrice = price + commission + CONFIG.DELIVERY_FEE
+  const commission = price * (CONFIG.EXPERT_COMMISSION_PERCENT / 100)
+  const deliveryFee = price * (CONFIG.DELIVERY_PERCENT / 100)
+  const finalPrice = price + commission + deliveryFee
 
   return {
     basePrice: price,
@@ -76,19 +89,18 @@ export function debugPricingCalculations(cartItems: CartItem[]): void {
 
   cartItems.forEach((item, index) => {
     const itemTotal = item.price * item.quantity
-    const itemCommission = Math.round((itemTotal * CONFIG.EXPERT_COMMISSION_PERCENT) / 100)
 
     console.log(`${index + 1}. ${item.name}`)
-    console.log(`   Цена: ${item.price}₽ × ${item.quantity} шт = ${itemTotal}₽`)
-    console.log(`   Комиссия (${CONFIG.EXPERT_COMMISSION_PERCENT}%): ${itemCommission}₽`)
+    console.log(`   Цена: $${item.price} × ${item.quantity} шт = $${itemTotal}`)
     console.log(`   Эксперт: @${item.expertUsername}`)
     console.log('---')
   })
 
   const pricing = calculatePricing(cartItems)
   console.log('ИТОГО:')
-  console.log(`Сумма товаров: ${pricing.basePrice}₽`)
-  console.log(`Общая комиссия: ${pricing.expertCommission}₽`)
+  console.log(`Сумма товаров: $${pricing.basePrice}`)
+  console.log(`Общая комиссия экспертов (${CONFIG.EXPERT_COMMISSION_PERCENT}%): $${pricing.expertCommission}`)
+  console.log(`Доставка (${CONFIG.DELIVERY_PERCENT}%): $${pricing.deliveryFee}`)
   console.log('Комиссии по экспертам:', pricing.expertCommissions)
 }
 
@@ -110,10 +122,10 @@ export function isPricingExpired(calculatedAt: number): boolean {
 }
 
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('ru-RU', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'RUB',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(price)
 }
