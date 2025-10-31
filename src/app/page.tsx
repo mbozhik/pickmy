@@ -6,7 +6,12 @@ import Products from '~~/index/Products'
 export default function IndexPage() {
   return (
     <>
-      <Hero />
+      <Hero
+        token="index"
+        title="Советы специалистов, которым можно доверять"
+        subtitle="Выбирайте лучшее из подборок специалистов — мы привезём без хлопот."
+        button={{text: 'Лучшие эксперты', to: '/#experts'}} // блок экспертов (заменить)
+      />
 
       <Container offset="small">
         <Experts />
