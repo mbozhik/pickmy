@@ -14,9 +14,10 @@ export const CONTAINER = {
   spacing: {
     small: 'space-y-14 xl:space-y-10 sm:space-y-8',
     medium: 'space-y-20 xl:space-y-16 sm:space-y-14',
+    large: 'space-y-28 xl:space-y-24 sm:space-y-20',
   },
 }
 
-export default function Container({children, offset = 'large', spacing = 'medium', className}: {children: React.ReactNode; offset?: 'small' | 'large'; spacing?: 'small' | 'medium'; className?: string}) {
+export default function Container({children, offset = 'large', spacing = 'medium', className}: {children: React.ReactNode; offset?: 'small' | 'large'; spacing?: 'small' | 'medium' | 'large'; className?: string}) {
   return <main className={cn(BOX.container, CONTAINER.height, CONTAINER.offset[offset], CONTAINER.spacing[spacing], className)}>{children}</main>
 }

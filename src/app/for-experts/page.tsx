@@ -1,4 +1,9 @@
+import Container from '~/Global/Container'
 import Hero from '~~/index/Hero'
+import Experts from '~~/index/Experts'
+import Advantages from '~~/for-experts/Advantages'
+import Metrics from '~~/for-experts/Metrics'
+import FAQ from '~~/for-experts/FAQ'
 
 export const metadata = {
   title: 'Станьте экспертом',
@@ -14,6 +19,13 @@ export default function ForExpertsPage() {
         subtitle="Рекомендуйте товары и получайте процент с каждой совершённой продажи"
         button={{text: 'Стать экспертом', to: '#apply'}} // ввв
       />
+
+      <Container offset="small" spacing="large">
+        <Advantages />
+        <Experts page="for-experts" />
+        <Metrics />
+        <FAQ />
+      </Container>
     </>
   )
 }
