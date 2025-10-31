@@ -1,8 +1,9 @@
 import {NextRequest, NextResponse} from 'next/server'
 import {Resend} from 'resend'
 
-import {CartTemplate, type FormFields as CartFormFields, SUBJECT as CART_SUBJECT} from '@/app/api/email/CartTemplate'
-import {ExampleTemplate, type ExampleFormFields, SUBJECT as EXAMPLE_SUBJECT} from '@/app/api/email/ExampleTemplate'
+import {CartTemplate, type FormFields as CartFormFields, SUBJECT as CART_SUBJECT} from '@api/email/CartTemplate'
+import {ExpertApplicationTemplate, type FormFields as ExpertApplicationFormFields, SUBJECT as EXPERT_APPLICATION_SUBJECT} from '@api/email/ExpertApplicationTemplate'
+import {ExampleTemplate, type ExampleFormFields, SUBJECT as EXAMPLE_SUBJECT} from '@api/email/ExampleTemplate'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -12,8 +13,8 @@ const EMAIL_LIST = {
 }
 
 type EmailRequest = {
-  template: 'cart' | 'example'
-  data: CartFormFields | ExampleFormFields
+  template: 'cart' | 'expert-application' | 'example'
+  data: CartFormFields | ExpertApplicationFormFields | ExampleFormFields
 }
 
 export async function POST(req: NextRequest) {
@@ -42,6 +43,20 @@ export async function POST(req: NextRequest) {
         emailConfig = {
           subject: `${CART_SUBJECT} – ${cartData.orderToken}`,
           react: CartTemplate(cartData),
+        }
+        break
+      }
+
+      case 'expert-application': {
+        const expertApplicationData = data as ExpertApplicationFormFields
+        if (!expertApplicationData.name || !expertApplicationData.email || !expertApplicationData.contact) {
+          console.error('Internal Server Error: 400 - Missing required expert application fields')
+          return NextResponse.json({error: 'Missing required expert application fields'}, {status: 400})
+        }
+
+        emailConfig = {
+          subject: `${EXPERT_APPLICATION_SUBJECT} – ${expertApplicationData.name}`,
+          react: ExpertApplicationTemplate(expertApplicationData),
         }
         break
       }

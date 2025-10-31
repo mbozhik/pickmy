@@ -4,6 +4,7 @@ import Experts from '~~/index/Experts'
 import Advantages from '~~/for-experts/Advantages'
 import Metrics from '~~/for-experts/Metrics'
 import FAQ from '~~/for-experts/FAQ'
+import ApplicationForm from '~~/for-experts/ApplicationForm'
 
 export const metadata = {
   title: 'Станьте экспертом',
@@ -25,6 +26,7 @@ export default function ForExpertsPage() {
         <Experts page="for-experts" />
         <Metrics />
         <FAQ />
+        <ApplicationForm />
       </Container>
     </>
   )
